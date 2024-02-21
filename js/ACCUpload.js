@@ -215,7 +215,7 @@ async function getCustomDetailsData(){
     revisionCodeID = await findObjectByName("Revision",customAttributes)
     revisionDescID = await findObjectByName("Revision Description",customAttributes)
     statusCodeID = await findObjectByName("Status",customAttributes)
-    StatusCodeDescriptionID = await findObjectByName("Status Code Description",customAttributes)
+    StatusCodeDescriptionID = await findObjectByName("State",customAttributes)
     ClassificationID = await findObjectByName("Classification",customAttributes)
 
 
