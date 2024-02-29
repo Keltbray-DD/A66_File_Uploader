@@ -96,64 +96,70 @@ function populateStatusDropdown() {
 
 function runUpload(){
       // Get the value of the username and password fields
-    const DocNumber = document.getElementById('DocNumber').value;
-    const input_folder = document.getElementById('input_folder').value;
-    const input_title = document.getElementById('input_title').value;
-    const input_Description = document.getElementById('input_Description').value;
-    const input_RevisionsCode = document.getElementById('input_RevisionsCode').value;
-    const input_RevisionDescription = document.getElementById('input_RevisionDescription').value;
-    const input_Status = document.getElementById('input_Status').value;
-    const input_file_template = document.getElementById('input_file_template').value;
-    const input_file_origin = document.getElementById('input_file_origin').value;
-    const fileInput = document.getElementById('fileInput');
-
-    // Check if the username field is empty
-    if (!DocNumber.trim()) {
-        // Alert the user if the username field is empty
-        alert('Please generate a document number');
-        return; // Exit the function
-    }
-    // Check if the password field is empty
-    if (!input_folder.trim()) {
-        // Alert the user if the password field is empty
-        alert('Please select a target folder');
-        return; // Exit the function
-    }
-    // Check if the username field is empty
-    if (!input_title.trim()) {
-        // Alert the user if the username field is empty
-        alert('Please enter a Title');
-        return; // Exit the function
-    }
-    // Check if the password field is empty
-    if (!input_Description.trim()) {
-        // Alert the user if the password field is empty
-        alert('Please enter a description');
-        return; // Exit the function
-    }
-            // Check if the username field is empty
-    if (!input_RevisionsCode.trim()) {
-        // Alert the user if the username field is empty
-        alert('Please enter a revision code');
-        return; // Exit the function
-    }
-    // Check if the password field is empty
-    if (!input_RevisionDescription.trim()) {
-        // Alert the user if the password field is empty
-        alert('Please enter a revision description');
-        return; // Exit the function
-    }
-    // Check if the username field is empty
-    if (!input_Status.trim()) {
-        // Alert the user if the username field is empty
-        alert('Please select a Status');
-        return; // Exit the function
-    }
-    if (!input_file_origin.trim()) {
-        // Alert the user if the username field is empty
-        alert('Please select an upload origin');
-        return; // Exit the function
-    }
+      const DocNumber = document.getElementById('DocNumber').value;
+      const input_folder = document.getElementById('input_folder').value;
+      const input_title = document.getElementById('input_title').value;
+      const input_Description = document.getElementById('input_Description').value;
+      const input_RevisionsCode = document.getElementById('input_RevisionsCode').value;
+      const input_RevisionDescription = document.getElementById('input_RevisionDescription').value;
+      const input_Status = document.getElementById('input_Status').value;
+      const input_State = document.getElementById('input_State').value;
+      const input_file_template = document.getElementById('input_file_template').value;
+      const input_file_origin = document.getElementById('input_file_origin').value;
+      const fileInput = document.getElementById('fileInput');
+  
+      // Check if the username field is empty
+      if (!DocNumber.trim()) {
+          // Alert the user if the username field is empty
+          alert('Please generate a document number');
+          return; // Exit the function
+      }
+      // Check if the password field is empty
+      if (!input_folder.trim()) {
+          // Alert the user if the password field is empty
+          alert('Please select a target folder');
+          return; // Exit the function
+      }
+      // Check if the username field is empty
+      if (!input_title.trim()) {
+          // Alert the user if the username field is empty
+          alert('Please enter a Title');
+          return; // Exit the function
+      }
+      // Check if the password field is empty
+      if (!input_Description.trim()) {
+          // Alert the user if the password field is empty
+          alert('Please enter a description');
+          return; // Exit the function
+      }
+              // Check if the username field is empty
+      if (!input_RevisionsCode.trim()) {
+          // Alert the user if the username field is empty
+          alert('Please enter a revision code');
+          return; // Exit the function
+      }
+      // Check if the password field is empty
+      if (!input_RevisionDescription.trim()) {
+          // Alert the user if the password field is empty
+          alert('Please enter a revision description');
+          return; // Exit the function
+      }
+      // Check if the username field is empty
+      if (!input_Status.trim()) {
+          // Alert the user if the username field is empty
+          alert('Please select a Status');
+          return; // Exit the function
+      }
+      if (!input_State.trim()) {
+          // Alert the user if the username field is empty
+          alert('Please select a State');
+          return; // Exit the function
+      }
+      if (!input_file_origin.trim()) {
+          // Alert the user if the username field is empty
+          alert('Please select an upload origin');
+          return; // Exit the function
+      }
     // Check if the password field is empty
     if(originSelectionDropdown.value === "Template Folder" && !input_file_template.trim()){
 
