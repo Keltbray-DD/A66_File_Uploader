@@ -514,3 +514,60 @@ async function getNamingStandardforproject(access_token,ns_id,project_id){
     document.getElementById('drop-area').classList.add('uploaded');
     
     }
+
+    // Function to fetch and parse CSV data with specified columns and remove headers
+async function loadCSVWithColumns(url, codeColumnIndex, titleColumnIndex) {
+    const response = await fetch(url);
+    const data = await response.text();
+    const rows = data.split('\n');
+    const result = [];
+
+    // Start iterating from the second row to skip headers
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i].trim(); // Trim the row to handle potential leading/trailing whitespace
+        if (row) { // Check if the row is not empty
+            const columns = row.split(',');
+            const code = columns[codeColumnIndex];
+            let title = columns[titleColumnIndex] || ''; // Use an empty string if the title column is undefined
+            title = title.trim().replace(/\r$/, ''); // Remove '\r' from the end of the title
+            result.push({ code, title });
+        }
+    }
+
+    return result;
+}
+
+// Usage
+const csvUrl = '../assets/uniclassClassifications.csv';
+const codeColumnIndex = 0; // Assuming code is in the first column (0-indexed)
+const titleColumnIndex = 1; // Assuming title is in the second column (0-indexed)
+
+// Function to populate dropdown with data
+function populateDropdown(data) {
+    const dropdown = document.getElementById('input_Classification');
+
+    // Clear existing options
+    dropdown.innerHTML = '';
+
+    // Add a default option
+    const defaultOption = document.createElement('option');
+    defaultOption.text = 'Select a classification';
+    dropdown.add(defaultOption);
+
+    // Add options for each item in the data array
+    data.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.code;
+        option.text = item.code+" - "+item.title;
+        dropdown.add(option);
+    });
+}
+
+// Usage
+loadCSVWithColumns(csvUrl, codeColumnIndex, titleColumnIndex)
+    .then(data => {
+        populateDropdown(data);
+    })
+    .catch(error => {
+        console.error('Error loading CSV:', error);
+    });

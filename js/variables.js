@@ -52,12 +52,16 @@ let fileData
 let filename
 let customAttributes =[]
 let templates = []
+
 let titlelineID
 let revisionCodeID
 let revisionDescID
 let statusCodeID
 let ClassificationID
 let StatusCodeDescriptionID
+let FileDescriptionID
+let StateID
+
 let fileURN
 let fileExtension
 let progressCount = 0

@@ -97,36 +97,57 @@
                   </div>
                   <div class="form-container">
                     <h3 class="form-heading">Step 3. Populate metadata</h3>
+                    <label class="form-label form-label-top form-label-auto" id="label_file_origin" for="input_file_origin" aria-hidden="false"> Please populate all marked (*) fields </label>
                     <ul class="form-step1">
                       <li>
-                        <label class="form-label form-label-top form-label-auto" id="label_title" for="input_title" aria-hidden="false"> Title </label>
+                        <label class="form-label form-label-top form-label-auto" id="label_title" for="input_title" aria-hidden="false"> Title* </label>
                         <input type="text" id="input_title">
                       </li>
                       <li>
-                        <label class="form-label form-label-top form-label-auto" id="label_Description" for="input_Description" aria-hidden="false"> Description </label>
+                        <label class="form-label form-label-top form-label-auto" id="label_Description" for="input_Description" aria-hidden="false"> Description* </label>
                         <input type="text" id="input_Description">
                       </li>
                     </ul>
                     <ul class="form-step1">
                       <li>
-                        <label class="form-label form-label-top form-label-auto" id="label_RevisionsCode" for="input_RevisionsCode" aria-hidden="false"> Revision Code </label>
+                        <label class="form-label form-label-top form-label-auto" id="label_RevisionsCode" for="input_RevisionsCode" aria-hidden="false"> Revision Code* </label>
                         <input type="text" id="input_RevisionsCode" value="P01.01">
                       </li>
                       <li>
-                        <label class="form-label form-label-top form-label-auto" id="label_RevisionDescription" for="input_RevisionDescription" aria-hidden="false"> Revision Description </label>
+                        <label class="form-label form-label-top form-label-auto" id="label_RevisionDescription" for="input_RevisionDescription" aria-hidden="false"> Revision Description* </label>
                         <input type="text" id="input_RevisionDescription">
                       </li>
                       </ul>
                       <ul class="form-step1">
                         <li>
-                          <label class="form-label form-label-top form-label-auto" id="label_Status" for="input_Status" aria-hidden="false"> Status Code </label>
+                          <label class="form-label form-label-top form-label-auto" id="label_Status" for="input_Status" aria-hidden="false"> Status Code* </label>
                           <select class="form-dropdown" id="input_Status" onchange="updateStatusTextInput()">
-                            <option value="">Select a state...</option>
+                            <option value="">Select a status code...</option>
                           </select>
                         </li>
                         <li>
-                          <label class="form-label form-label-top form-label-auto" id="label_StatusDesc" for="input_StatusDesc" aria-hidden="false"> Status Description </label>
+                          <label class="form-label form-label-top form-label-auto" id="label_StatusDesc" for="input_StatusDesc" aria-hidden="false"> Status Description* </label>
                           <input type="text" id="input_StatusDesc" readonly>
+                        </li>
+                      </ul>
+                      <ul class="form-step1">
+                        <li>
+                          <label class="form-label form-label-top form-label-auto" id="label_State" for="input_Status" aria-hidden="false"> State* </label>
+                          <select class="form-dropdown" id="input_State">
+                            <option value="">Select a state...</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Preliminary">Preliminary</option>
+                            <option value="Shared">Shared</option>
+                            <option value="Published">Published</option>
+                            <option value="Archived">Archived</option>
+
+                          </select>
+                        </li>
+                        <li>
+                          <label class="form-label form-label-top form-label-auto" id="label_Classification" for="input_StatusDesc" aria-hidden="false"> Classification </label>
+                          <select class="form-dropdown" id="input_Classification">
+                            <option value="">Select a classification...</option>
+                          </select>
                         </li>
                       </ul>
 

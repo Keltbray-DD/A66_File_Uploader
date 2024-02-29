@@ -215,9 +215,10 @@ async function getCustomDetailsData(){
     revisionCodeID = await findObjectByName("Revision",customAttributes)
     revisionDescID = await findObjectByName("Revision Description",customAttributes)
     statusCodeID = await findObjectByName("Status",customAttributes)
-    StatusCodeDescriptionID = await findObjectByName("State",customAttributes)
+    StatusCodeDescriptionID = await findObjectByName("Status Code Description",customAttributes)
     ClassificationID = await findObjectByName("Classification",customAttributes)
-
+    FileDescriptionID = await findObjectByName("File Description",customAttributes)
+    StateID = await findObjectByName("State",customAttributes)
 
     console.log(titlelineID)
     console.log(revisionCodeID)
@@ -225,6 +226,8 @@ async function getCustomDetailsData(){
     console.log(statusCodeID)
     console.log(StatusCodeDescriptionID)
     console.log(ClassificationID)
+    console.log(FileDescriptionID)
+    console.log(StateID)
 }
 
 async function getAccessToken(scopeInput){
@@ -655,6 +658,21 @@ async function postCustomItemDetails(AccessToken){
              // Status Description
           "id": StatusCodeDescriptionID.id,
           "value": $("#input_StatusDesc").val()
+        },
+        {
+             // Status Description
+          "id": ClassificationID.id,
+          "value": $("#input_Classification").val()
+        },
+        {
+             // Status Description
+          "id": FileDescriptionID.id,
+          "value": $("#input_Description").val()
+        },
+        {
+             // Status Description
+          "id": StateID.id,
+          "value": $("#input_State").val()
         }
       ];
 
