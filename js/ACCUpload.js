@@ -638,7 +638,11 @@ async function getItemDetails(AccessToken){
     }
 
 async function postCustomItemDetails(AccessToken){
-    //console.log("SD",$("#input_StatusDesc").val())
+    if($("#input_Classification").val()==="Select a classification"){
+        classValue = ""
+    }else{
+        classValue = $("#input_Classification").val()
+    }
     const bodyData = [
         {
             // Title Line 1

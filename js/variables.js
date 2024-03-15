@@ -34,6 +34,15 @@ const searchFolders =[
     "urn:adsk.wipemea:fs.folder:co.4BeOE7NxR5aqMWBDSaccxA", // 0H.ARCHIVED
 ]
 
+const tooltips = [
+    { value: "Project Pin", tooltip: "The ‘project pin’ identifier code indicates that a document is related to a specific project to control its placement and management within the project folder structure where more than one project identification number may be in use" },
+    { value: "Originator", tooltip: "The ‘originator’ (company) identifier code serves to identify which company has created a document. They are ultimately accountable for the document and liable for its content through the lifecycle of the project" },
+    { value: "Function", tooltip: "The ‘function’ (volume) identifier code clearly defines the required profession to allow the user to better understand the documents relevance without having to open it" },
+    { value: "Spatial", tooltip: "The ‘spatial’ (location) identifier code provides the user with a clear location the document content relates to. This code can be used to understand for instance if the document relates to a site compound, battery island or junction" },
+    { value: "Form", tooltip: "The ‘form’ (type) identifier code indicates to the user the type of document it is, for example a report (RP), a drawing (DR) or 2D Model (M2)" },
+    { value: "Discipline", tooltip: "The ‘discipline’ (Task Team) identifier code gives a user information on who the responsible team/discipline is, who have generated the document’ content and are accountable for it" }
+];
+
 var AccessToken_DataCreate
 var AccessToken_DataRead
 var AccessToken_BucketCreate
@@ -82,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
     droparea = document.getElementById('drop-area')
     templateDropdwon = document.getElementById('templatesDropdown');
     reloadButton = document.getElementById('reloadButton');
-
+    tooltipQuestion = document.querySelectorAll('.fa-circle-question')
 
     // Add a click event listener to the button
     reloadButton.addEventListener('click', function() {
@@ -104,6 +113,24 @@ document.addEventListener('DOMContentLoaded', function() {
             droparea.style.display = 'block'
         }
       });
+    // Add event listener to each help icon
+    tooltipQuestion.forEach(function(icon) {
+        icon.addEventListener('click', function() {
+        var index = this.getAttribute("value");
+        displayMessage = lookupTooltip(index, tooltips)
+        alert(displayMessage);
+        });
+    });
+
+    function lookupTooltip(valueToFind, array) {
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].value === valueToFind) {
+                return array[i].tooltip;
+            }
+        }
+        return "Tooltip not found"; // Return a default message if the value is not found
+    }
+  
 
 
 });

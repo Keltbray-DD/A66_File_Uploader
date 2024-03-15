@@ -435,4 +435,16 @@ input[type="submit"]:active {
         margin-top: 20px; /* Add some space between the spinner and the text */
         color: white;
       }
+      .fa-regular{
+        display: flex;
+        float: right;
+        margin-right: 10px;
+        margin-top: 5px;
+        cursor: pointer;
+        color: #3498db;
+      }
+      .fa-regular:hover{
+        opacity: 50%;
+      }
+
       
