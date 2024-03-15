@@ -81,7 +81,7 @@ h1, h3 {
     display: block;
 }
 .form-dropdown{
-    width: calc(100px,5%);
+    width: calc(100%,5%);
 }
 .form-dropdown option {
     background-color: #fff;
@@ -110,7 +110,8 @@ width: 100%;
     margin: auto 20;
 }
 label {
-    display: block;
+    display: inline-block;
+    width: 80%;
 }
 
 /* Style for the text input */
@@ -394,6 +395,7 @@ input[type="submit"]:active {
     }
     .form-label {
         margin: 5 0;
+
     }
 
     .button.disabled {
@@ -435,6 +437,7 @@ input[type="submit"]:active {
         margin-top: 20px; /* Add some space between the spinner and the text */
         color: white;
       }
+
       .fa-regular{
         display: flex;
         float: right;
@@ -446,5 +449,3 @@ input[type="submit"]:active {
       .fa-regular:hover{
         opacity: 50%;
       }
-
-      
