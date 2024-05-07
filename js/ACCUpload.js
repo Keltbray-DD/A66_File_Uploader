@@ -672,7 +672,7 @@ async function postCustomItemDetails(AccessToken){
         {
              // Status Description
           "id": ClassificationID.id,
-          "value": $("#input_Classification").val()
+          "value": classValue
         },
         {
              // Status Description

@@ -12,17 +12,17 @@ const uploadfolders = [
 ]
 
 const StatesList = [
-    { code: 'A4', description: 'Accepted Design',folder:"PUBLISHED" },
-    { code: 'A5', description: 'Accepted For Construction',folder:"PUBLISHED" },
-    { code: 'A6', description: 'Accepted Handover',folder:"PUBLISHED" },
-    { code: 'A7', description: 'Accepted Operation and Maintain',folder:"PUBLISHED" },
-    { code: 'S0', description: 'Work in Progress',folder:"WIP" },
-    { code: 'S1', description: 'Suitable For Co-Ordination',folder:"SHARED" },
-    { code: 'S2', description: 'Suitable For Information',folder:"SHARED" },
-    { code: 'S3', description: 'Suitable Review & Comment',folder:"SHARED" },
-    { code: 'S4', description: 'Suitable LeadAppointedPartyApproval',folder:"CLIENT_SHARED" },
-    { code: 'S6', description: 'Suitable PIM Authorisation',folder:"NA" },
-    { code: 'S7', description: 'Suitable AIM Authorisation',folder:"NA" }
+    //{ code: 'A4', description: 'Accepted Design',folder:"PUBLISHED" },
+    //{ code: 'A5', description: 'Accepted For Construction',folder:"PUBLISHED" },
+    //{ code: 'A6', description: 'Accepted Handover',folder:"PUBLISHED" },
+    //{ code: 'A7', description: 'Accepted Operation and Maintain',folder:"PUBLISHED" },
+    { code: 'S0', description: 'Work In Progress',folder:"WIP" },
+    //{ code: 'S1', description: 'Suitable For Co-Ordination',folder:"SHARED" },
+    //{ code: 'S2', description: 'Suitable For Information',folder:"SHARED" },
+    //{ code: 'S3', description: 'Suitable Review & Comment',folder:"SHARED" },
+    //{ code: 'S4', description: 'Suitable LeadAppointedPartyApproval',folder:"CLIENT_SHARED" },
+    //{ code: 'S6', description: 'Suitable PIM Authorisation',folder:"NA" },
+    //{ code: 'S7', description: 'Suitable AIM Authorisation',folder:"NA" }
 ];
 
 const searchFolders =[
