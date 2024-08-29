@@ -1,15 +1,11 @@
 const projectID = "76c59b97-feaf-413c-9bd0-43cf8aaa3133";
-const namingstandardID ="bfb5fb2c-2fdd-57e1-a0df-f67ca9c0dfc6"
 const hubID= "b.24d2d632-e01b-4ca0-b988-385be827cb04"
 const bucketKey = "wip.dm.emea.2"
-const defaultFolder = "urn:adsk.wipemea:fs.folder:co.URthp3nyQJSVkS_ixq1kLw" // KELTBRAY - WIP Folder
-const templateFolderID = "urn:adsk.wipemea:fs.folder:co.XZyMaargRi6mOFkOPeU-xA" // APPROVED_TEMPLATES Folder
+const toolURL ="https://keltbray-dd.github.io/A66_File_Uploader/"
 
-const uploadfolders = [
-    {folderName:"KELTBRAY - WIP",folderID:"urn:adsk.wipemea:fs.folder:co.URthp3nyQJSVkS_ixq1kLw"},
-    {folderName:"JAC - JACOBS - WIP",folderID:"urn:adsk.wipemea:fs.folder:co.jA228qR9T2Of7j3Z6Mmpwg"},
-    {folderName:"WHP - WENTWORTH HOUSE - WIP",folderID:"urn:adsk.wipemea:fs.folder:co.XUG4NnuhQhitF0EJV3Ta4A"}
-]
+let ProjectFiles = []
+let projectFolders
+let deliverableFolders =[]
 
 const StatesList = [
     //{ code: 'A4', description: 'Accepted Design',folder:"PUBLISHED" },
@@ -25,16 +21,6 @@ const StatesList = [
     //{ code: 'S7', description: 'Suitable AIM Authorisation',folder:"NA" }
 ];
 
-const searchFolders =[
-    "urn:adsk.wipemea:fs.folder:co.URthp3nyQJSVkS_ixq1kLw", // 0C.KELTBRAY - WIP
-    "urn:adsk.wipemea:fs.folder:co.jA228qR9T2Of7j3Z6Mmpwg", // 0D.SUB-CONTRACTORs - JACOBS - WIP
-    "urn:adsk.wipemea:fs.folder:co.XUG4NnuhQhitF0EJV3Ta4A", // 0D.SUB-CONTRACTORs - WENTWORTH HOUSE - WIP
-    "urn:adsk.wipemea:fs.folder:co.Ru81Mqr4Qk6NXn4odgar3w", // 0E.SHARED
-    "urn:adsk.wipemea:fs.folder:co.YASk96dnSEKD4yiEFsgx6g", // 0F.CLIENT_SHARED
-    "urn:adsk.wipemea:fs.folder:co.q64hLwHiQPm04oCvl0PX0g", // 0G.PUBLISHED
-    "urn:adsk.wipemea:fs.folder:co.4BeOE7NxR5aqMWBDSaccxA", // 0H.ARCHIVED
-]
-
 const tooltips = [
     { value: "Project Pin", tooltip: "The ‘project pin’ identifier code indicates that a document is related to a specific project to control its placement and management within the project folder structure where more than one project identification number may be in use" },
     { value: "Originator", tooltip: "The ‘originator’ (company) identifier code serves to identify which company has created a document. They are ultimately accountable for the document and liable for its content through the lifecycle of the project" },
@@ -48,7 +34,6 @@ var AccessToken_DataCreate
 var AccessToken_DataRead
 var AccessToken_BucketCreate
 
-let namingstandard;
 let filelist =[];
 let arrayprojectPin=[];
 let arrayOriginator=[];
@@ -56,12 +41,15 @@ let arrayfunction=[];
 let arraySpatial=[];
 let arrayForm=[];
 let arrayDiscipline=[];
+let customAttributes =[]
+let templatesList =[];
+
 let objectKeyShort
 let objectKeyLong
 let fileData
 let filename
-let customAttributes =[]
-let templates = []
+let droppedfile
+let uploadfile
 
 let titlelineID
 let revisionCodeID
@@ -71,12 +59,13 @@ let ClassificationID
 let StatusCodeDescriptionID
 let FileDescriptionID
 let StateID
+let namingstandardID
 
+let namingstandard;
 let fileURN
 let fileExtension
 let progressCount = 0
 let uploadbutton
-let templatesList =[];
 let originSelectionDropdown
 let templateDropdwon
 let copyURN
@@ -92,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
     droparea = document.getElementById('drop-area')
     templateDropdwon = document.getElementById('templatesDropdown');
     reloadButton = document.getElementById('reloadButton');
+    tooltip = document.getElementById('tooltip')
     tooltipQuestion = document.querySelectorAll('.fa-circle-question')
 
     // Add a click event listener to the button
@@ -110,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // You can perform any actions you need here
         if(originSelectionDropdown.value === "Template Folder"){
             templateDropdwon.style.display = 'block'
-        }else if(originSelectionDropdown.value === "User PC"){
+        }else if(originSelectionDropdown.value === "Your computer"){
             droparea.style.display = 'block'
         }
       });
@@ -131,10 +121,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return "Tooltip not found"; // Return a default message if the value is not found
     }
-  
-
 
 });
+function signin(){
+    window.open("https://developer.api.autodesk.com/authentication/v2/authorize?response_type=code&client_id=UMPIoFc8iQoJ2eKS6GsJbCGSmMb4s1PY&redirect_uri="+toolURL+"&scope=data:read&prompt=login&state=12321321&code_challenge=fePr9SDGJIToHximLHTRokkzkfzZksznrDIx9bexsto&code_challenge_method=S256","_self")
+}
+
+window.onload = function() {
+    // Function to parse URL parameters
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    // Check if 'code' parameter exists in the URL
+    var codeParam = getParameterByName('code');
+    if (codeParam !== null) {
+        // Run your function here, for example:
+        console.log("Code parameter found: " + codeParam);
+        // Call your function here
+        // yourFunctionName(codeParam);
+    }else{
+        signin()
+    }
+}
+
+
+
 
 
 

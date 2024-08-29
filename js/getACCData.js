@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     loadingScreen = document.getElementById('loadingScreen');
+    statusUpdateLoading = document.getElementById('statusUpdateLoading');
     // Show the loading screen
     function showLoadingScreen() {
         loadingScreen.style.display = 'flex';
@@ -16,20 +17,121 @@ document.addEventListener('DOMContentLoaded', function() {
     async function gatherArrays() {
 
         showLoadingScreen(); // Show loading screen before gathering arrays
+        await getProjectDetailsFromACC()
         await getfileslist()
         await getNamingStandard()
         await getTemplateFiles()
+        await populateFolderDropdown(deliverableFolders)
         getCustomDetailsData()
-        populateClassificationDropdown(uniclassClassificationsArray)
+        populateClassificationDropdown()
         hideLoadingScreen();
  
     }
     gatherArrays();
 })
 
+let getRate = 0
+// Call the gatherArrays function
+populateStatusDropdown()
 
-  // Call the gatherArrays function
 
+
+async function updateRevisionTextInput() {
+    const dropdown = document.getElementById('input_folder');
+    const revisionInput = document.getElementById('input_RevisionsCode');
+    const selectedValue = dropdown.value;
+    //console.log(selectedValue)
+
+    // Check if a state is selected
+    if (selectedValue) {
+        // Get the description of the selected state
+        const folder = uploadfolders.find(obj => obj.folderID === selectedValue);
+
+        if(folder.folderName === "SHARED"){
+            document.getElementById('input_RevisionsCode').value = "P01"
+            uploadFolderID = selectedValue.folderID
+        }else {
+            document.getElementById('input_RevisionsCode').value = "P01.01"
+            uploadFolderID = selectedValue.folderID
+        }
+        // Update the text input with the selected description
+        ;
+    }
+    }
+
+async function updateStatusTextInput() {
+    const dropdown = document.getElementById('input_Status');
+    const selectedValue = dropdown.value;
+
+    // Check if a state is selected
+    if (selectedValue) {
+        // Get the description of the selected state
+        const description = StatesList.find(obj => obj.code === selectedValue);
+
+    } else {
+        // If no state is selected, clear the text input
+        document.getElementById('input_StatusDesc').value = '';
+    }
+    }
+
+async function populateFolderDropdown(folderArray,ProjectPin) {
+    console.log(folderArray)
+    const dropdown = document.getElementById('input_folder');
+    uploadfolders = folderArray.filter(item => {
+        return item.folderPath.includes("WIP")})
+    if(ProjectPin){
+        uploadfolders = uploadfolders.filter(item => {
+            return item.folderPath.includes(ProjectPin.value)})
+    }
+    // Check if dropdown element exists
+    if (dropdown) {
+        // Clear existing options
+        dropdown.innerHTML = '';
+
+        // Add blank option
+        const blankOption = document.createElement('option');
+        blankOption.value = '';
+        blankOption.textContent = 'Select a folder...';
+        dropdown.appendChild(blankOption);
+
+        // Add states from iso19650States array
+        uploadfolders.forEach(folder => {
+            const option = document.createElement('option');
+            option.value = folder.folderID;
+            option.textContent = folder.folderPath;
+            dropdown.appendChild(option);
+        });
+        console.log(uploadfolders)
+    } else {
+        console.error('Dropdown element not found.');
+    };
+    }
+
+function populateStatusDropdown() {
+    document.addEventListener('DOMContentLoaded', function() {
+    const dropdown = document.getElementById('input_Status');
+    // Check if dropdown element exists
+    if (dropdown) {
+        // Clear existing options
+        dropdown.innerHTML = '';
+
+        // Add blank option
+        const blankOption = document.createElement('option');
+        blankOption.value = '';
+        blankOption.textContent = 'Select a state...';
+        dropdown.appendChild(blankOption);
+
+        // Add states from iso19650States array
+        StatesList.forEach(state => {
+            const option = document.createElement('option');
+            option.value = state.code;
+            option.textContent = state.code;
+            dropdown.appendChild(option);
+        });
+    } else {
+        console.error('Dropdown element not found.');
+    }});
+}
 
 function generateDocName(){
     ProjectPin = document.querySelector('#ProjectPin_input')
@@ -46,6 +148,9 @@ function generateDocName(){
     console.log(Discipline.value)
     const varDocNumber_noNum = ProjectPin.value+"-"+Originator.value+"-"+vFunction.value+"-"+Spatial.value+"-"+Form.value+"-"+Discipline.value
     console.log(varDocNumber_noNum)
+
+    console.log(deliverableFolders)
+    populateFolderDropdown(deliverableFolders,ProjectPin)
 
     const PartialMatch = filelist.filter(item => item.includes(varDocNumber_noNum));
 
@@ -129,11 +234,14 @@ async function getNamingStandard() {
     //console.log("Access Token: ", access_token);
 
     try {
+        statusUpdateLoading.textContent = "Getting Naming Standard";
         namingstandard = await getNamingStandardforproject(access_token,namingstandardID,projectID)
 
     } catch (error) {
         console.error("Error iterating through searchFolders:", error);
     }
+
+    console.log(namingstandard)
     arrayprojectPin = namingstandard.find(item => item.name === "Project PIN") // Change back to Project Pin
     arrayprojectPin = arrayprojectPin ? arrayprojectPin.options : [];
 
@@ -234,22 +342,33 @@ async function getfileslist() {
         console.log("Error: Getting Access Token");
     }
     //console.log("Access Token: ", access_token);
-
+    searchFolders = deliverableFolders
     try {
-        for (const folderID of searchFolders) {
+        for (const folder of searchFolders) {
             try {
-                filelist_temp = await getfolderItems(folderID, access_token, projectID);
+                if (getRate >= 290) {
+                    console.log("Waiting for 5 Seconds..."); // Displaying the message for a 60-second delay
+                    getRate = 0
+                    await delay(5000); // Delaying for 60 seconds
+                }else{
+                    filelist_temp = await getfolderItems(folder.folderID, access_token, projectID);
+                
+                    console.log("Folder searched",folder.folderPath)
+                    statusUpdateLoading.textContent = "Folder searched: "+folder.folderPath+"..."
 
+                }
+                
             } catch (error) {
                 console.error("Error getting folder items:", error);
             }
+            
             filelist = filelist.concat(filelist_temp.data.map(item => item.attributes.displayName))
         }
 
     } catch (error) {
         console.error("Error iterating through searchFolders:", error);
     }
-    console.log(filelist)
+    console.log("File List",filelist)
     }
 
 async function getAccessToken(scopeInput){
@@ -268,7 +387,7 @@ async function getAccessToken(scopeInput){
         body: JSON.stringify(bodyData)
     };
 
-    const apiUrl = "https://prod-30.uksouth.logic.azure.com:443/workflows/df0aebc4d2324e98bcfa94699154481f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jHsW0eISklveK7XAJcG0nhfEnffX62AP0mLqJrtLq9c";
+    const apiUrl = "https://prod-18.uksouth.logic.azure.com:443/workflows/d8f90f38261044b19829e27d147f0023/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-N-bYaES64moEe0gFiP5J6XGoZBwCVZTmYZmUbdJkPk";
     //console.log(apiUrl)
     //console.log(requestOptions)
     signedURLData = await fetch(apiUrl,requestOptions)
@@ -342,6 +461,8 @@ async function getfolderItems(folder_id,AccessToken,project_id){
         .then(response => response.json())
         .then(data => {
             const JSONdata = data
+            getRate++
+            console.log("getRate",getRate)
         //console.log(JSONdata)
         //console.log(JSONdata.uploadKey)
         //console.log(JSONdata.urls)
@@ -471,6 +592,199 @@ async function getNamingStandardforproject(access_token,ns_id,project_id){
     return responseData
     }
 
+async function getProjectDetailsFromACC(){
+    accessTokenDataRead = await getAccessToken("data:read")
+    topFolderData = await getProjectTopFolder(accessTokenDataRead,hubID,projectID)
+    ProjectFiles = topFolderData.data.filter(item => {
+        return item.attributes.name === "Project Files"
+    })
+    startFolderID = ProjectFiles[0].id
+    console.log("Project Files Folder ID:",startFolderID)
+    startfolder_list = [{folderID: ProjectFiles[0].id,folderName: ProjectFiles[0].attributes.name}]
+    console.log("StartFolder:",startfolder_list)
+    await getAllACCFolders(startfolder_list)
+
+    }
+
+async function getProjectTopFolder(accessTokenDataRead,hubID,projectID){
+
+    const bodyData = {
+
+        };
+
+    const headers = {
+        'Authorization':"Bearer "+accessTokenDataRead,
+        //'Content-Type':'application/json'
+    };
+
+    const requestOptions = {
+        method: 'GET',
+        headers: headers,
+        //body: JSON.stringify(bodyData)
+    };
+
+    const apiUrl = "https://developer.api.autodesk.com/project/v1/hubs/"+hubID+"/projects/b."+projectID+"/topFolders";
+    console.log(apiUrl)
+    console.log(requestOptions)
+    responseData = await fetch(apiUrl,requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            const JSONdata = data
+
+        console.log(JSONdata)
+
+        return JSONdata
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
+    return responseData
+    }
+
+async function getAllACCFolders(startfolder_list){
+    if(startfolder_list.length === 0){
+        alert("Please enter a URL before clicking start")
+    }else{
+        //statusUpdate = document.getElementById('statusUpdate')
+        try {
+            access_token_create = await getAccessToken("data:write");
+        } catch {
+            console.log("Error: Getting Create Access Token");
+        }
+        try {
+            access_token_read = await getAccessToken("data:read");
+        } catch {
+            console.log("Error: Getting Read Access Token");
+        }
+        try {
+            getRate = 0;
+            
+            folderList_Main = []
+            //statusUpdate.innerHTML = `<p class="extracted-ids"> Start Folder Found</p>`
+            await getFolderList(access_token_read,startfolder_list)
+            //statusUpdate.innerHTML = `<p class="extracted-ids"> Folder List Created</p>`
+            console.log("Full Folder List",folderList_Main)
+            console.log("Deliverable Folders:",deliverableFolders)
+            await getNamingStandardID(deliverableFolders)
+            //statusUpdate.innerHTML = `<p class="extracted-ids"> Naming Standard Extracted</p>`
+            await getTemplateFolder(deliverableFolders)
+            uploadfolders = deliverableFolders.filter(item => {
+                return item.folderPath.includes("WIP")})
+            //statusUpdate.innerHTML = `<p class="extracted-ids"> Template List Extracted</p>`
+        } catch {
+            console.log("Error: Geting folder list");
+        }
+        //await convertToExcelTable(nsData,templatesList,deliverableFolders)
+        //statusUpdate.innerHTML = `<p class="extracted-ids"> Templae and Options file ready for download</p>`
+
+
+    }}
+
+async function getFolderList(AccessToken, startFolderList, parentFolderPath) {
+
+        // Array of folder names to skip
+        const foldersToSkip = ["HE565627_A66_PROJECT_LEVEL","0A.INCOMING","Z.PROJECT_ADMIN","ZZ.SHADOW_PROJECT"];
+        const deliverableFoldersToAdd = ["APPROVED_TEMPLATES","WIP","0E.SHARED","0F.CLIENT_SHARED","0F.SHARED_TO_CLIENT", "0G.PUBLISHED", "0H.ARCHIVED"]
+
+        for (const startFolder of startFolderList) {
+            const folderList = await getfolderItems(startFolder.folderID, AccessToken, projectID);
+            if (!folderList || !folderList.data || !Array.isArray(folderList.data)) {
+                throw new Error("Error getting folder items: Invalid folderList data");
+            }
+            if (getRate >= 290) {
+                console.log("Waiting for 5 Seconds..."); // Displaying the message for a 60-second delay
+                getRate = 0
+                await delay(5000); // Delaying for 60 seconds
+            } else {
+                for (const folder of folderList.data) {
+                    if (folder.type === 'folders') {
+                        const folderID = "folderID: " + folder.id;
+                        folderNameLocal = "folderPath: " + folder.attributes.name;
+                        const fullPath = parentFolderPath ? parentFolderPath + '/' + folderNameLocal.split(': ')[1] : folderNameLocal.split(': ')[1];
+                        folderList_Main.push({ folderID: folder.id, folderPath: fullPath,folderNameEnd: folderNameLocal });
+                        if(deliverableFoldersToAdd.some(AddName => folderNameLocal.includes(AddName))){
+                            deliverableFolders.push({ folderID: folder.id, folderPath: fullPath,folderNameEnd: folder.attributes.name });
+                            if(folderNameLocal.includes("APPROVED_TEMPLATES")){
+                                templateFolderID = folder.id
+                            }
+
+                        }
+                        
+                        if(fullPath.includes("0C.WIP/")){
+                            deliverableFolders.push({ folderID: folder.id, folderPath: fullPath,folderNameEnd: folder.attributes.name });
+                        }
+                        //statusUpdate.innerHTML = `<p class="extracted-ids"> Added folder: ${fullPath}</p>`
+                        console.log("Added folder:", folderID, fullPath);
+                        statusUpdateLoading.textContent = "Folder found: "+fullPath+"..."
+                        // Check if the folderName contains any of the names in foldersToSkip array
+                        if (!foldersToSkip.some(skipName => folderNameLocal.includes(skipName))) {
+                            await getFolderList(AccessToken, [{ folderID: folder.id, folderPath: fullPath }], fullPath);
+                        } else {
+                            console.log("Skipping getFolderList for folder:", folderID, fullPath);
+                        }
+                    }
+                }
+            }
+            }
+
+
+                //await Promise.all(promises);
+            }
+        
+    
+
+async function getNamingStandardID(folderArray){
+    wipFolderID = folderArray.filter(item => {
+        return item.folderPath.includes("WIP")})
+    console.log("Keltrbay WIP Folder for NS",wipFolderID[0]);
+    defaultFolder = wipFolderID[0].folderID
+    returnData = await getFolderDetails(accessTokenDataRead,projectID,wipFolderID[0].folderID)
+    
+    console.log(returnData)
+    namingstandardID = returnData.data.attributes.extension.data.namingStandardIds[0]
+    console.log(namingstandardID)
+
+    return nsData
+}
+
+async function getTemplateFolder(folderArray){
+    templateFolderID = folderArray.filter(item => {
+        return item.folderPath === "0B.GENERAL/APPROVED_TEMPLATES"})[0].folderID
+    console.log(templateFolderID);
+    statusUpdateLoading.textContent = "Getting Template files..."
+    await getTemplateFiles()
+
+    
+    return 
+}
+async function getFolderDetails(accessTokenDataRead,projectID,folderID){
+
+    const headers = {
+        'Authorization':"Bearer "+accessTokenDataRead,
+    };
+
+    const requestOptions = {
+        method: 'GET',
+        headers: headers,
+    };
+
+    const apiUrl = "https://developer.api.autodesk.com/data/v1/projects/b."+projectID+"/folders/"+folderID;
+    //console.log(apiUrl)
+    //console.log(requestOptions)
+    responseData = await fetch(apiUrl,requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            const JSONdata = data
+        //console.log(JSONdata)
+        //console.log(JSONdata.uploadKey)
+        //console.log(JSONdata.urls)
+        return JSONdata
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    return responseData
+    }
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+    }
     // Load the CSV file
     // JavaScript function to trigger the click event on the file input
     function openFileExplorer() {
@@ -485,6 +799,7 @@ async function getNamingStandardforproject(access_token,ns_id,project_id){
     function handleDrop(event) {
     event.preventDefault();
     var file = event.dataTransfer.files[0];
+    console.log(file)
     handleFile(file);
     }
 
@@ -512,26 +827,106 @@ async function getNamingStandardforproject(access_token,ns_id,project_id){
     fileExtension = file.name.split('.').pop();
     // Add 'uploaded' class to indicate file upload
     document.getElementById('drop-area').classList.add('uploaded');
-    
+    console.log(file)
+    droppedfile = file
     }
 
+
+
 // Function to populate dropdown with data
-function populateClassificationDropdown(data) {
-    const dropdown = document.getElementById('input_Classification');
+function populateClassificationDropdown() {
+    data = uniclassClassificationsArray
+    const searchInput = document.getElementById('input_Classification');
+    const selectOptions = document.getElementById('selectOptions');
 
-    // Clear existing options
-    dropdown.innerHTML = '';
 
-    // Add a default option
-    const defaultOption = document.createElement('option');
-    defaultOption.text = 'Select a classification';
-    dropdown.add(defaultOption);
+    // Function to create the dropdown options
+    function populateOptions(items) {
+        selectOptions.innerHTML = "";
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.textContent = item.code+" - "+item.title;
+            div.addEventListener('click', () => {
+                searchInput.textContent = item.code+" - "+item.title;
+                searchInput.value = item.code;
+                selectOptions.innerHTML = "";
+            });
+            selectOptions.appendChild(div);
+        });
+    }
 
-    // Add options for each item in the data array
-    data.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.code;
-        option.text = item.code+" - "+item.title;
-        dropdown.add(option);
+    // Populate the dropdown with all options initially
+    populateOptions(data);
+
+    // Add event listener to filter the dropdown based on search input
+    searchInput.addEventListener('input', function() {
+        const filter = searchInput.value.toLowerCase();
+        const filteredOptions = data.filter(option => {
+            // Check if any field in the object contains the search term
+            return Object.values(option).some(value =>
+                value.toString().toLowerCase().includes(filter)
+            );
+        });
+        populateOptions(filteredOptions);
+        selectOptions.style.display = 'block'; // Show the dropdown when input is typed
+    });
+
+    // Close the dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !selectOptions.contains(e.target)) {
+            selectOptions.innerHTML = "";
+        }
+    });
+
+    // Open dropdown on input click
+    searchInput.addEventListener('click', function() {
+        populateOptions(data);
+        selectOptions.style.display = 'block'; // Show the dropdown when input is typed
     });
 }
+
+// Usage
+
+
+    const NBS_ClientID = "43F135AD-454B-41FD-9595-AD5B22043FBF"
+    const NBS_ClientSecret = "A3FC7F77-3A1A-4243-B37A-A64FD6B7DD98"
+
+//generateNBSAccessToken(NBS_ClientID,NBS_ClientSecret)
+
+async function generateNBSAccessToken(clientId,clientSecret){
+    const bodyData = {
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type:'client_credentials',
+    scope:'bimtoolkitapi'
+    };
+
+    var formBody = [];
+    for (var property in bodyData) {
+        var encodedKey = encodeURIComponent(property);
+        var encodedValue = encodeURIComponent(bodyData[property]);
+        formBody.push(encodedKey + "=" + encodedValue);
+    };
+    formBody = formBody.join("&")
+
+    const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    const requestOptions = {
+        method: 'POST',
+        headers: headers,
+        body: formBody,
+    };
+    const apiUrl = 'https://identity.thenbs.com/core/connect/token';
+    //console.log(requestOptions)
+    AccessToken_Local = await fetch(apiUrl,requestOptions)
+        .then(response => response.json())
+        .then(data => {
+        //console.log(data)
+        console.log("NBS Access Token",data.access_token)
+        return data.access_token
+        })
+        .catch(error => console.error('Error fetching data:', error));
+        return AccessToken_Local
+    }

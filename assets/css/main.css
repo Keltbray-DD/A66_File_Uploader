@@ -79,6 +79,7 @@ h1, h3 {
 }
 .form-button{
     display: block;
+    width: 30%;
 }
 .form-dropdown{
     width: calc(100%,5%);
@@ -91,22 +92,27 @@ h1, h3 {
 .form-templates{
     display: none;
 }
+.form-templates p{
+   font-size: 0.75rem;
+   color: red;
+   margin-left: 10px;
+}
 .form-step1{
     display: flex;
     flex-direction: row;
-width: 100%;
+    width: 100%;
 }
 .form-step2{
     display: flex;
     flex-direction: row;
-width: 100%;
+    width: 100%;
 }
 .form-group {
     margin-bottom: 20px;
 }
 .form-output{
     display: block;
-    width: 50%;
+    width: 70%;
     margin: auto 20;
 }
 label {
@@ -140,8 +146,8 @@ select {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, #ccc 50%), linear-gradient(135deg, #ccc 50%, transparent 50%);
+    /*appearance: none;*/
+    /*background-image: linear-gradient(45deg, transparent 50%, #ccc 50%), linear-gradient(135deg, #ccc 50%, transparent 50%);*/
     background-position: calc(100% - 10px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px);
     background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
@@ -449,3 +455,59 @@ input[type="submit"]:active {
       .fa-regular:hover{
         opacity: 50%;
       }
+        /* Basic styling for the dropdown */
+        .dropdown-container {
+            width: 300px;
+            margin: 50px auto;
+        }
+
+        .dropdown {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Hide the original dropdown */
+        .classfication-select {
+            display: none;
+        }
+
+        /* Style the custom dropdown */
+        .custom-select {
+            position: relative;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .custom-select input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .select-items {
+            position: absolute;
+            background-color: #fff;
+            width: 100%;
+            max-width: 45%;
+            border: 1px solid #ccc;
+            border-top: none;
+            z-index: 99;
+            max-height: 200px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            display: none;
+        }
+
+        .select-items div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .select-items div:hover {
+            background-color: #ffffff;
+        }

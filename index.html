@@ -12,8 +12,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="icon" href="./assets/media/Keltbray-logo_single.png" type="image/x-icon">
     <script src="https://kit.fontawesome.com/eefbfa2a22.js" crossorigin="anonymous"></script>
-    
-    <title>Digital Delivery Hub - A66 Scheme 3A ACC File Uploader</title>
+    <title>Digital Delivery Hub - A66 Scheme 3a ACC File Uploader</title>
 </head>
 
 <body>
@@ -21,10 +20,10 @@
     <header>
         <div class="header-section">
             <img alt="" id="headerlogo" class="logo_H" src="./assets/media/Keltbray-logo_single.png">
-            <h2>Keltbray <br>DD Hub</h2>
+            <h2>Keltbray ISL <br>DD Hub</h2>
         </div>
         <div class="header-section">
-            <h1>A66 Scheme 3A ACC File Uploader</h1>
+            <h1>A66 Scheme 3a ACC File Uploader</h1>
         </div>
         <div class="header-section">
             <h3></h3>
@@ -35,6 +34,10 @@
       <div id="loadingScreen">
         <div class="spinner"></div>
         <p>Loading ACC Data...</p>
+        <p id="statusUpdateLoading"></p>
+      <div id="tooltip" class="tooltip">
+
+      </div>
       </div>
             <form class="" id="ACC_FileNo_Generator" >
                 <div class="form-group">
@@ -99,7 +102,7 @@
                   </div>
                   <div class="form-container">
                     <h3 class="form-heading">Step 3. Populate metadata</h3>
-                    <label class="form-label form-label-top form-label-auto" id="label_file_origin" for="input_file_origin" aria-hidden="false"> Please populate all marked (*) fields </label>
+                    <label class="form-label form-label-top form-label-auto" id="label_subheading1" aria-hidden="false"> Please populate all marked (*) fields </label>
                     <ul class="form-step1">
                       <li>
                         <label class="form-label form-label-top form-label-auto" id="label_title" for="input_title" aria-hidden="false"> Title* </label>
@@ -113,7 +116,7 @@
                     <ul class="form-step1">
                       <li>
                         <label class="form-label form-label-top form-label-auto" id="label_RevisionsCode" for="input_RevisionsCode" aria-hidden="false"> Revision Code* </label>
-                        <input type="text" id="input_RevisionsCode" value="P01.01">
+                        <input type="text" id="input_RevisionsCode" value="P01.01" readonly>
                       </li>
                       <li>
                         <label class="form-label form-label-top form-label-auto" id="label_RevisionDescription" for="input_RevisionDescription" aria-hidden="false"> Revision Description* </label>
@@ -128,51 +131,36 @@
                           </select>
                         </li>
                         <li>
-                          <label class="form-label form-label-top form-label-auto" id="label_StatusDesc" for="input_StatusDesc" aria-hidden="false"> Status Description* </label>
-                          <input type="text" id="input_StatusDesc" readonly>
-                        </li>
-                      </ul>
-                      <ul class="form-step1">
-                        <li>
-                          <label class="form-label form-label-top form-label-auto" id="label_State" for="input_Status" aria-hidden="false"> State* </label>
-                          <select class="form-dropdown" id="input_State">
-                            <option value="">Select a state...</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Preliminary">Preliminary</option>
-                            <option value="Shared">Shared</option>
-                            <option value="Published">Published</option>
-                            <option value="Archived">Archived</option>
-
-                          </select>
-                        </li>
-                        <li>
                           <label class="form-label form-label-top form-label-auto" id="label_Classification" for="input_StatusDesc" aria-hidden="false"> Classification </label>
-                          <select class="form-dropdown" id="input_Classification">
-                            <option value="">Select a classification...</option>
-                          </select>
+                          <input type="text" id="input_Classification" placeholder="Search...">
+                          <div id="selectOptions" class="select-items">
+                              <!-- Options will be populated here -->
+                          </div>
                         </li>
                       </ul>
+
 
                   </div>
 
                   <div class="form-container2">
                     <h3 class="form-heading">Step 4. Select file to upload</h3>
-                    <label class="form-label form-label-top form-label-auto" id="label_file_origin" for="input_file_origin" aria-hidden="false"> Select upload origin (i.e. from Template or User PC) </label>
+                    <label class="form-label form-label-top form-label-auto" id="label_file_origin" for="input_file_origin" aria-hidden="false"> Select upload origin (i.e. from Template or Your computer) </label>
                     <select class="form-dropdown" id="input_file_origin" >
                       <option value="">Select a origin...</option>
                       <option value="Template Folder">Template Folder</option>
-                      <option value="User PC">User PC</option>
+                      <option value="Your computer">Your computer</option>
                     </select>
                     <div id="templatesDropdown" class="form-templates">
                       <label class="form-label form-label-top form-label-auto" id="label_file_template" for="input_file_template" aria-hidden="false"> Select template to use </label>
                       <select class="form-dropdown" id="input_file_template" onchange="updateRevisionTextInput()">
                         <option value="">Select a template...</option>
                       </select>
+                      <p>If a specific template is not available please contact your Project Information Manager </p>
                     </div>
 
-                      <div id="drop-area" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
+                      <div id="drop-area" onclick="openFileExplorer()" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" onchange="handleFileSelect(event)">
                         <i class="file-icon fas fa-file-alt"></i>
-                        <p  onclick="openFileExplorer()">Click here or Drag and drop a file here</p>
+                        <p >Click here or Drag and drop a file here</p>
                         <input type="file" id="fileInput" onchange="handleFileSelect(event)">
                       </div>
                     <div id="file-info"></div>
