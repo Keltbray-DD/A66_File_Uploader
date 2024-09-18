@@ -12,6 +12,7 @@ function runUpload(){
       const input_file_template = document.getElementById('input_file_template').value;
       const input_file_origin = document.getElementById('input_file_origin').value;
       const fileInput = document.getElementById('fileInput');
+      const input_classification = document.getElementById('input_Classification').value;
   
       // Check if the username field is empty
       if (!DocNumber.trim()) {
@@ -60,6 +61,11 @@ function runUpload(){
           alert('Please select an upload origin');
           return; // Exit the function
       }
+      if (!input_classification.trim()) {
+        // Alert the user if the username field is empty
+        alert('Please select a classification for the file');
+        return; // Exit the function
+    }
     // Check if the password field is empty
     if(originSelectionDropdown.value === "Template Folder" && !input_file_template.trim()){
 
