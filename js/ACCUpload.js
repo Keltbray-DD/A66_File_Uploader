@@ -7,8 +7,8 @@ function runUpload(){
       const input_title = document.getElementById('input_title').value;
       const input_Description = document.getElementById('input_Description').value;
       const input_RevisionsCode = document.getElementById('input_RevisionsCode').value;
-      const input_RevisionDescription = document.getElementById('input_RevisionDescription').value;
       const input_Status = document.getElementById('input_Status').value;
+      const input_Series = document.getElementById('input_Series').value;
       const input_file_template = document.getElementById('input_file_template').value;
       const input_file_origin = document.getElementById('input_file_origin').value;
       const fileInput = document.getElementById('fileInput');
@@ -44,18 +44,18 @@ function runUpload(){
           alert('Please enter a revision code');
           return; // Exit the function
       }
-      // Check if the password field is empty
-      if (!input_RevisionDescription.trim()) {
-          // Alert the user if the password field is empty
-          alert('Please enter a revision description');
-          return; // Exit the function
-      }
+
       // Check if the username field is empty
       if (!input_Status.trim()) {
           // Alert the user if the username field is empty
           alert('Please select a Status');
           return; // Exit the function
       }
+      if (!input_Series.trim()) {
+        // Alert the user if the username field is empty
+        alert('Please select a Series');
+        return; // Exit the function
+    }
       if (!input_file_origin.trim()) {
           // Alert the user if the username field is empty
           alert('Please select an upload origin');
@@ -138,6 +138,9 @@ async function getCustomDetailsData(){
     console.log("Custom Attributes:",customAttributes)
 
     titlelineID = await findObjectByName("Title Line 1",customAttributes)
+    titleline2ID = await findObjectByName("Title Line 2",customAttributes)
+    titleline3ID = await findObjectByName("Title Line 3",customAttributes)
+    titleline4ID = await findObjectByName("Title Line 4",customAttributes)
     revisionCodeID = await findObjectByName("Revision",customAttributes)
     revisionDescID = await findObjectByName("Revision Description",customAttributes)
     statusCodeID = await findObjectByName("Status",customAttributes)
@@ -145,8 +148,12 @@ async function getCustomDetailsData(){
     ClassificationID = await findObjectByName("Classification",customAttributes)
     FileDescriptionID = await findObjectByName("File Description",customAttributes)
     StateID = await findObjectByName("State",customAttributes)
+    SeriesID = await findObjectByName("Series",customAttributes)
 
     console.log(titlelineID)
+    console.log(titleline2ID)
+    console.log(titleline3ID)
+    console.log(titleline4ID)
     console.log(revisionCodeID)
     console.log(revisionDescID)
     console.log(statusCodeID)
@@ -154,6 +161,7 @@ async function getCustomDetailsData(){
     console.log(ClassificationID)
     console.log(FileDescriptionID)
     console.log(StateID)
+    console.log(SeriesID)
 }
 
 async function getAccessToken(scopeInput){
@@ -456,7 +464,7 @@ async function uploadFile(uploadFolderID,filename,projectID){
         await completeUpload(AccessToken_DataCreate,objectKeyShort,uploadKey);
         delay(100)
         updateProgressBar()
-        fileData = await createFirstRevision(AccessToken_DataCreate,objectKeyLong);
+        fileData = await createFirstRevision(userAccessToken,objectKeyLong);
         delay(100)
         updateProgressBar()
     } catch (error) {
@@ -539,6 +547,21 @@ async function postCustomItemDetails(AccessToken){
     }else{
         classValue = $("#input_Classification").val()
     }
+    if($("#input_title2").val()===""){
+        title2Value = ""
+    }else{
+        title2Value = $("#input_title2").val()
+    }
+    if($("#input_title3").val()===""){
+        title3Value = ""
+    }else{
+        title3Value = $("#input_title3").val()
+    }
+    if($("#input_title4").val()===""){
+        title4Value = ""
+    }else{
+        title4Value = $("#input_title4").val()
+    }
     //console.log("SD",$("#input_StatusDesc").val())
     const bodyData = [
         {
@@ -547,14 +570,24 @@ async function postCustomItemDetails(AccessToken){
           "value": $("#input_title").val()
         },
         {
+            // Title Line 2
+          "id": titleline2ID.id,
+          "value": $("#input_title2").val()
+        },
+        {
+            // Title Line 3
+          "id": titleline3ID.id,
+          "value": $("#input_title3").val()
+        },
+        {
+            // Title Line 4
+          "id": titleline4ID.id,
+          "value": $("#input_title4").val()
+        },
+        {
             // Revision Code
           "id": revisionCodeID.id,
           "value": $("#input_RevisionsCode").val()
-        },
-        {
-            // Revision Description
-          "id": revisionDescID.id,
-          "value": $("#input_RevisionDescription").val()
         },
         {
             // Status Code
@@ -570,6 +603,11 @@ async function postCustomItemDetails(AccessToken){
              // Status Description
           "id": FileDescriptionID.id,
           "value": $("#input_Description").val()
+        },
+        {
+             // Status Description
+          "id": SeriesID.id,
+          "value": $("#input_Series").val()
         }
       ];
 

@@ -22,8 +22,10 @@ document.addEventListener('DOMContentLoaded', function() {
         await getNamingStandard()
         await getTemplateFiles()
         await populateFolderDropdown(deliverableFolders)
-        getCustomDetailsData()
-        populateClassificationDropdown()
+        await getCustomDetailsData()
+        //populateClassificationDropdown()
+        populateStatusDropdown()
+        populateSeriesDropdown()
         hideLoadingScreen();
  
     }
@@ -32,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 let getRate = 0
 // Call the gatherArrays function
-populateStatusDropdown()
+
 
 
 
@@ -77,8 +79,9 @@ async function updateStatusTextInput() {
 async function populateFolderDropdown(folderArray,ProjectPin) {
     console.log(folderArray)
     const dropdown = document.getElementById('input_folder');
-    uploadfolders = folderArray.filter(item => {
-        return item.folderPath.includes("WIP")})
+    uploadfolders = deliverableFolders.filter(item => {
+        return item.folderPath.includes("WIP") || item.folderPath.includes("SHARED");
+    });
     if(ProjectPin){
         uploadfolders = uploadfolders.filter(item => {
             return item.folderPath.includes(ProjectPin.value)})
@@ -97,6 +100,14 @@ async function populateFolderDropdown(folderArray,ProjectPin) {
         // Add states from iso19650States array
         uploadfolders.forEach(folder => {
             const option = document.createElement('option');
+            if(selectedOriginator != null){
+                if(folder.folderPath.includes(selectedOriginator)){
+                    option.selected = true
+                // }else{
+                //     alert(`The selected originator ${selectedOriginator} does not have an originator upload loaction on the project`)
+                //     return
+                }
+            }
             option.value = folder.folderID;
             option.textContent = folder.folderPath;
             dropdown.appendChild(option);
@@ -108,7 +119,7 @@ async function populateFolderDropdown(folderArray,ProjectPin) {
     }
 
 function populateStatusDropdown() {
-    document.addEventListener('DOMContentLoaded', function() {
+
     const dropdown = document.getElementById('input_Status');
     // Check if dropdown element exists
     if (dropdown) {
@@ -128,12 +139,38 @@ function populateStatusDropdown() {
                 option.selected = true
             }
             option.value = state.code;
-            option.textContent = state.code;
+            option.textContent = `${state.code} - ${state.description}`;
             dropdown.appendChild(option);
         });
     } else {
         console.error('Dropdown element not found.');
-    }});
+    }
+}
+
+function populateSeriesDropdown() {
+    //document.addEventListener('DOMContentLoaded', function() {
+    const dropdown = document.getElementById('input_Series');
+    // Check if dropdown element exists
+    if (dropdown) {
+        // Clear existing options
+        dropdown.innerHTML = '';
+
+        // Add blank option
+        const blankOption = document.createElement('option');
+        blankOption.value = '';
+        blankOption.textContent = 'Select a series...';
+        dropdown.appendChild(blankOption);
+
+        // Add states from iso19650States array
+        SeriesID.arrayValues.forEach(series => {
+            const option = document.createElement('option');
+            option.value = series;
+            option.textContent = `${series}`;
+            dropdown.appendChild(option);
+        });
+    } else {
+        console.error('Dropdown element not found.');
+    }//});
 }
 
 function generateDocName(){
@@ -153,6 +190,9 @@ function generateDocName(){
     console.log(varDocNumber_noNum)
 
     console.log(deliverableFolders)
+    selectedOriginator = Originator.value
+    selectedFunction = vFunction.description
+    selectedForm = Form.description
     populateFolderDropdown(deliverableFolders,ProjectPin)
 
     const PartialMatch = filelist.filter(item => item.includes(varDocNumber_noNum));
@@ -190,7 +230,7 @@ function generateDocName(){
     sessionStorage.setItem('generatedName',varDocNumber_Full.toString())
     document.getElementById("DocNumber").value = varDocNumber_Full.toString()
 
-
+    populateClassificationDropdown()
     }
 
 async function getTemplateFiles(){
@@ -261,23 +301,33 @@ async function getNamingStandard() {
         optionElement.textContent = `${option.value} - ${option.description}`;
         dropdownContainerProjectPin.appendChild(optionElement);
     });
-
     arrayOriginator = namingstandard.find(item => item.name === "Originator")
     arrayOriginator = arrayOriginator ? arrayOriginator.options : [];
-
     // Get the dropdown container
     const dropdownContainerOriginator = document.getElementById("Originator_input");
-
-    // Create and append options to the dropdown
-    arrayOriginator.forEach(option => {
-        const optionElement = document.createElement("option");
-        if(option.value == "KEL"){
+    if(isAdmin){
+        // Create and append options to the dropdown
+        arrayOriginator.forEach(option => {
+            const optionElement = document.createElement("option");
+            if(option.value == "KEL"){
+                optionElement.selected = true
+            }
+            optionElement.value = option.value;
+            optionElement.textContent = `${option.value} - ${option.description}`;
+            dropdownContainerOriginator.appendChild(optionElement);
+        });
+    }else{
+        const wipFolders = deliverableFolders.filter(folder => folder.folderEndName === "WIP");
+        arrayOriginatorSingle = arrayOriginator.filter(originator => originator.description === userCompany)
+        arrayOriginatorSingle.forEach(option => {
+            const optionElement = document.createElement("option");
             optionElement.selected = true
-        }
-        optionElement.value = option.value;
-        optionElement.textContent = `${option.value} - ${option.description}`;
-        dropdownContainerOriginator.appendChild(optionElement);
-    });
+            optionElement.value = option.value;
+            optionElement.textContent = `${option.value} - ${option.description}`;
+            dropdownContainerOriginator.appendChild(optionElement);
+        });
+    }
+
 
     arrayfunction = namingstandard.find(item => item.name === "Function")
     arrayfunction = arrayfunction ? arrayfunction.options : [];
@@ -633,14 +683,14 @@ async function getProjectTopFolder(accessTokenDataRead,hubID,projectID){
     };
 
     const apiUrl = "https://developer.api.autodesk.com/project/v1/hubs/"+hubID+"/projects/b."+projectID+"/topFolders";
-    console.log(apiUrl)
-    console.log(requestOptions)
+    //console.log(apiUrl)
+    //console.log(requestOptions)
     responseData = await fetch(apiUrl,requestOptions)
         .then(response => response.json())
         .then(data => {
             const JSONdata = data
 
-        console.log(JSONdata)
+        //console.log(JSONdata)
 
         return JSONdata
         })
@@ -677,7 +727,8 @@ async function getAllACCFolders(startfolder_list){
             //statusUpdate.innerHTML = `<p class="extracted-ids"> Naming Standard Extracted</p>`
             await getTemplateFolder(deliverableFolders)
             uploadfolders = deliverableFolders.filter(item => {
-                return item.folderPath.includes("WIP")})
+                return item.folderPath.includes("WIP") || item.folderPath.includes("SHARED");
+            });
             //statusUpdate.innerHTML = `<p class="extracted-ids"> Template List Extracted</p>`
         } catch {
             console.log("Error: Geting folder list");
@@ -844,7 +895,18 @@ function delay(ms) {
 
 // Function to populate dropdown with data
 function populateClassificationDropdown() {
-    data = uniclassClassificationsArray
+    
+    //data = uniclassClassificationsArray
+    // Sentences you want to split into individual keywords
+    const sentences = [selectedFunction, selectedForm];
+
+    // Split the sentences into individual keywords
+    const keywords = sentences.join(" ").split(" ");
+
+    data = uniclassClassificationsArray.filter(item => 
+        keywords.some(keyword => item.title.includes(keyword))
+    );
+    console.log('classificationData',data)
     const searchInput = document.getElementById('input_Classification');
     const selectOptions = document.getElementById('selectOptions');
 
