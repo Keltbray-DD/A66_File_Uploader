@@ -189,10 +189,10 @@ function generateDocName(){
     const varDocNumber_noNum = ProjectPin.value+"-"+Originator.value+"-"+vFunction.value+"-"+Spatial.value+"-"+Form.value+"-"+Discipline.value
     console.log(varDocNumber_noNum)
 
-    console.log(deliverableFolders)
+    //console.log(deliverableFolders)
     selectedOriginator = Originator.value
-    selectedFunction = vFunction.description
-    selectedForm = Form.description
+    selectedFunction = arrayfunction.find(item => item.value === vFunction.value)
+    selectedForm = arrayForm.find(item => item.value === Form.value)
     populateFolderDropdown(deliverableFolders,ProjectPin)
 
     const PartialMatch = filelist.filter(item => item.includes(varDocNumber_noNum));
@@ -314,6 +314,7 @@ async function getNamingStandard() {
             }
             optionElement.value = option.value;
             optionElement.textContent = `${option.value} - ${option.description}`;
+            optionElement.description = option.description;
             dropdownContainerOriginator.appendChild(optionElement);
         });
     }else{
@@ -324,6 +325,7 @@ async function getNamingStandard() {
             optionElement.selected = true
             optionElement.value = option.value;
             optionElement.textContent = `${option.value} - ${option.description}`;
+            optionElement.description = option.description;
             dropdownContainerOriginator.appendChild(optionElement);
         });
     }
@@ -340,6 +342,7 @@ async function getNamingStandard() {
         const optionElement = document.createElement("option");
         optionElement.value = option.value;
         optionElement.textContent = `${option.value} - ${option.description}`;
+        optionElement.description = option.description;
         dropdownContainerfunction.appendChild(optionElement);
     });
 
@@ -354,6 +357,7 @@ async function getNamingStandard() {
         const optionElement = document.createElement("option");
         optionElement.value = option.value;
         optionElement.textContent = `${option.value} - ${option.description}`;
+        optionElement.description = option.description;
         dropdownContainerSpatial.appendChild(optionElement);
     });
 
@@ -368,6 +372,7 @@ async function getNamingStandard() {
         const optionElement = document.createElement("option");
         optionElement.value = option.value;
         optionElement.textContent = `${option.value} - ${option.description}`;
+        optionElement.description = option.description;
         dropdownContainerForm.appendChild(optionElement);
     });
 
@@ -382,6 +387,7 @@ async function getNamingStandard() {
         const optionElement = document.createElement("option");
         optionElement.value = option.value;
         optionElement.textContent = `${option.value} - ${option.description}`;
+        optionElement.description = option.description;
         dropdownContainerDiscipline.appendChild(optionElement);
     });
 
@@ -898,15 +904,19 @@ function populateClassificationDropdown() {
     
     //data = uniclassClassificationsArray
     // Sentences you want to split into individual keywords
-    const sentences = [selectedFunction, selectedForm];
-
+    const sentences = [selectedFunction.description, selectedForm.description];
+    console.log(sentences)
     // Split the sentences into individual keywords
     const keywords = sentences.join(" ").split(" ");
-
+    console.log(keywords)
     data = uniclassClassificationsArray.filter(item => 
         keywords.some(keyword => item.title.includes(keyword))
     );
-    console.log('classificationData',data)
+    // Using filter and map to remove duplicates based on 'id'
+    const uniqueArray = data.filter((obj, index, self) =>
+        index === self.findIndex((item) => item.code === obj.code)
+    );
+    console.log('classificationData',uniqueArray)
     const searchInput = document.getElementById('input_Classification');
     const selectOptions = document.getElementById('selectOptions');
 
@@ -927,7 +937,7 @@ function populateClassificationDropdown() {
     }
 
     // Populate the dropdown with all options initially
-    populateOptions(data);
+    populateOptions(uniqueArray);
 
     // Add event listener to filter the dropdown based on search input
     searchInput.addEventListener('input', function() {
