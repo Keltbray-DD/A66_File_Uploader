@@ -1,8 +1,18 @@
 
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    
+    await checkLogin()
     loadingScreen = document.getElementById('loadingScreen');
     statusUpdateLoading = document.getElementById('statusUpdateLoading');
+    const logoutButton = document.getElementById('logoutBtn');
+
+    // Add an event listener for the button click event
+    logoutButton.addEventListener('click', function() {
+        localStorage.setItem('user_refresh_token','blank');
+        clearUrlParameters();
+        signin()
+    })
     // Show the loading screen
     function showLoadingScreen() {
         loadingScreen.style.display = 'flex';
@@ -17,25 +27,58 @@ document.addEventListener('DOMContentLoaded', function() {
     async function gatherArrays() {
 
         showLoadingScreen(); // Show loading screen before gathering arrays
-        await getProjectDetailsFromACC()
+        // Check if data should be refreshed
+        if (shouldRefreshData()) {
+            await getProjectDetailsFromACC()
+        } else {
+            // Get the array from localStorage
+            //storedFolderArray = JSON.parse(localStorage.getItem('folderArray'));
+            folderList_Main = JSON.parse(localStorage.getItem('mainFolderArray'));
+            uploadfolders = JSON.parse(localStorage.getItem('uploadfolderArray'));
+            deliverableFolders = JSON.parse(localStorage.getItem('deliverableFoldersArray'));
+            console.log('Using folder stored data:', folderList_Main, uploadfolders, deliverableFolders);
+            
+            accessTokenDataRead = await getAccessToken("data:read");
+            await getNamingStandardID(deliverableFolders)
+            //await getFolders()
+        }
         await getfileslist()
         await getNamingStandard()
-        await getTemplateFiles()
+        await getTemplateFolder(deliverableFolders)
         await populateFolderDropdown(deliverableFolders)
         await getCustomDetailsData()
         //populateClassificationDropdown()
         populateStatusDropdown()
         populateSeriesDropdown()
         hideLoadingScreen();
- 
+        initialStep4SectionHTML = document.getElementById('step4').innerHTML
+        initialStep5SectionHTML = document.getElementById('step5').innerHTML
     }
     gatherArrays();
 })
 
 let getRate = 0
-// Call the gatherArrays function
 
+// Function to check if data needs to be refreshed based on the defined interval
+function shouldRefreshData() {
+    const storedTime = localStorage.getItem('folderGatheredTimestamp');
+    
+    // If there's no timestamp, we need to refresh
+    if (!storedTime) return true;
 
+    // Get current time and stored time in milliseconds
+    const currentTime = new Date().getTime();
+    const storedTimeMillis = parseInt(storedTime, 10);
+
+    // Calculate the difference in milliseconds
+    const timeDifferenceMillis = currentTime - storedTimeMillis;
+
+    // Convert milliseconds difference to days
+    const timeDifferenceDays = timeDifferenceMillis / (1000 * 60 * 60 * 24); // 1000 ms/s * 60 s/min * 60 min/hr * 24 hr/day
+
+    // Check if the time difference in days is greater than or equal to the refresh interval
+    return timeDifferenceDays >= REFRESH_INTERVAL_DAYS;
+}
 
 
 async function updateRevisionTextInput() {
@@ -162,10 +205,10 @@ function populateSeriesDropdown() {
         dropdown.appendChild(blankOption);
 
         // Add states from iso19650States array
-        SeriesID.arrayValues.forEach(series => {
+        seriesArray.forEach(series => {
             const option = document.createElement('option');
-            option.value = series;
-            option.textContent = `${series}`;
+            option.value = series.value;
+            option.textContent = `${series.value} - ${series.description}`;
             dropdown.appendChild(option);
         });
     } else {
@@ -225,7 +268,7 @@ function generateDocName(){
         newNumber = "000001"
     }
 
-    const varDocNumber_Full = varDocNumber_noNum+"-"+newNumber
+    varDocNumber_Full = varDocNumber_noNum+"-"+newNumber
     console.log('New Document Number: ', varDocNumber_Full);
     sessionStorage.setItem('generatedName',varDocNumber_Full.toString())
     document.getElementById("DocNumber").value = varDocNumber_Full.toString()
@@ -328,6 +371,7 @@ async function getNamingStandard() {
             optionElement.description = option.description;
             dropdownContainerOriginator.appendChild(optionElement);
         });
+        selectedOriginator = document.querySelector("#Originator_input").value
     }
 
 
@@ -409,7 +453,7 @@ async function getfileslist() {
     //console.log("Access Token: ", access_token);
     searchFolders = deliverableFolders
     try {
-        for (const folder of searchFolders) {
+        for (const folder of deliverableFolders) {
             try {
                 if (getRate >= 290) {
                     console.log("Waiting for 5 Seconds..."); // Displaying the message for a 60-second delay
@@ -721,20 +765,8 @@ async function getAllACCFolders(startfolder_list){
             console.log("Error: Getting Read Access Token");
         }
         try {
-            getRate = 0;
-            
-            folderList_Main = []
-            //statusUpdate.innerHTML = `<p class="extracted-ids"> Start Folder Found</p>`
-            await getFolderList(access_token_read,startfolder_list)
-            //statusUpdate.innerHTML = `<p class="extracted-ids"> Folder List Created</p>`
-            console.log("Full Folder List",folderList_Main)
-            console.log("Deliverable Folders:",deliverableFolders)
-            await getNamingStandardID(deliverableFolders)
-            //statusUpdate.innerHTML = `<p class="extracted-ids"> Naming Standard Extracted</p>`
-            await getTemplateFolder(deliverableFolders)
-            uploadfolders = deliverableFolders.filter(item => {
-                return item.folderPath.includes("WIP") || item.folderPath.includes("SHARED");
-            });
+            await getFolders()
+
             //statusUpdate.innerHTML = `<p class="extracted-ids"> Template List Extracted</p>`
         } catch {
             console.log("Error: Geting folder list");
@@ -744,6 +776,30 @@ async function getAllACCFolders(startfolder_list){
 
 
     }}
+
+    async function getFolders() {
+        getRate = 0;
+            
+        folderList_Main = []
+        //statusUpdate.innerHTML = `<p class="extracted-ids"> Start Folder Found</p>`
+        await getFolderList(access_token_read,startfolder_list)
+        //statusUpdate.innerHTML = `<p class="extracted-ids"> Folder List Created</p>`
+        console.log("Full Folder List",folderList_Main)
+        console.log("Deliverable Folders:",deliverableFolders)
+        await getNamingStandardID(deliverableFolders)
+        //statusUpdate.innerHTML = `<p class="extracted-ids"> Naming Standard Extracted</p>`
+        
+        uploadfolders = deliverableFolders.filter(item => {
+            return item.folderPath.includes("WIP") || item.folderPath.includes("SHARED");
+        });
+        console.log('Upload Folders',uploadfolders)
+        localStorage.setItem('mainFolderArray', JSON.stringify(folderList_Main));
+        localStorage.setItem('uploadFolderArray', JSON.stringify(uploadfolders));
+        localStorage.setItem('deliverableFoldersArray', JSON.stringify(deliverableFolders));
+        const newTime = new Date().getTime()
+        console.log('New Folder Update Time',newTime)
+        localStorage.setItem('folderGatheredTimestamp', newTime);
+    }
 
 async function getFolderList(AccessToken, startFolderList, parentFolderPath) {
 
@@ -805,17 +861,15 @@ async function getNamingStandardID(folderArray){
     defaultFolder = wipFolderID[0].folderID
     returnData = await getFolderDetails(accessTokenDataRead,projectID,wipFolderID[0].folderID)
     
-    console.log(returnData)
+    console.log('Naming Standard Folder Data',returnData)
     namingstandardID = returnData.data.attributes.extension.data.namingStandardIds[0]
-    console.log(namingstandardID)
-
-    return nsData
+    console.log('Naming Standard ID', namingstandardID)
 }
 
 async function getTemplateFolder(folderArray){
-    templateFolderID = folderArray.filter(item => {
-        return item.folderPath === "0B.GENERAL/APPROVED_TEMPLATES"})[0].folderID
-    console.log(templateFolderID);
+    templateFolderID = folderArray.find(item => item.folderPath.includes("0B.GENERAL/APPROVED_TEMPLATES")).folderID;
+
+    console.log('Template Folder ID:',templateFolderID);
     statusUpdateLoading.textContent = "Getting Template files..."
     await getTemplateFiles()
 

@@ -1,8 +1,9 @@
 const projectID = "76c59b97-feaf-413c-9bd0-43cf8aaa3133";
 const hubID = "b.24d2d632-e01b-4ca0-b988-385be827cb04";
 const bucketKey = "wip.dm.emea.2";
-const toolURL ="https://keltbray-dd.github.io/A66_File_Uploader/"
-//const toolURL = "http://127.0.0.1:3002/index.html";
+//const toolURL ="https://keltbray-dd.github.io/A66_File_Uploader/"
+const toolURL = "http://127.0.0.1:3000/index.html";
+const REFRESH_INTERVAL_DAYS = 1;
 
 let ProjectFiles = [];
 let projectFolders;
@@ -28,6 +29,45 @@ const StatesList = [
   },
   { code: "S6", description: "Suitable PIM Authorisation", folder: "NA" },
   { code: "S7", description: "Suitable AIM Authorisation", folder: "NA" },
+];
+const seriesArray = [
+  { value: "Not Applicable", description: "Not Applicable" },
+  { value: "100", description: "Preliminaries" },
+  { value: "200", description: "Site Clearance" },
+  { value: "300", description: "Fencing" },
+  { value: "400", description: "Road Restraint Systems (Vehicle and Pedestrian)" },
+  { value: "500", description: "Drainage and Service Ducts" },
+  { value: "600", description: "Earthworks" },
+  { value: "700", description: "Road Pavements – General" },
+  { value: "800", description: "Road Pavements – Unbound" },
+  { value: "900", description: "Road Pavements – Bituminous Bound Materials" },
+  { value: "1000", description: "Road Pavements – Concrete Materials" },
+  { value: "1100", description: "Kerbs" },
+  { value: "1200", description: "Traffic Signs" },
+  { value: "1300", description: "Road Lighting Columns and Brackets" },
+  { value: "1400", description: "Electrical Work for Road Lighting and Traffic Signs" },
+  { value: "1500", description: "Highway Communications" },
+  { value: "1600", description: "Piling and Embedded Retaining Walls" },
+  { value: "1700", description: "Structural Concrete" },
+  { value: "1800", description: "Structural Steelwork" },
+  { value: "1900", description: "Protection of Steelwork against Corrosion" },
+  { value: "2000", description: "Waterproofing for Concrete Structures" },
+  { value: "2100", description: "Bridge Bearings" },
+  { value: "2200", description: "Not Used" },
+  { value: "2300", description: "Bridge Expansion Joints and Sealing of Gaps" },
+  { value: "2400", description: "Brickwork" },
+  { value: "2500", description: "Special Structures" },
+  { value: "2600", description: "Miscellaneous" },
+  { value: "3000", description: "Landscape and Ecology" },
+  { value: "5000", description: "Maintenance Painting of Steelwork" },
+  { value: "5700", description: "Concrete Repairs" },
+  { value: "NS-ALI", description: "Non Series Alignment" },
+  { value: "NS-DEP", description: "Non Series Departure" },
+  { value: "NS-HWY", description: "Non Series Highway" },
+  { value: "NS-PCF", description: "Non Series PCF" },
+  { value: "NS-STR", description: "Non Series Structure (Spanning)" },
+  { value: "NS-TMP", description: "Non Series Temporary Works" },
+  { value: "NS-UTL", description: "Non Series Utilities" }
 ];
 
 const tooltips = [
@@ -79,12 +119,12 @@ const tooltips = [
   {
     value: "classification",
     tooltip:
-      "You are required to assign a classification code to your file to accord to ISO 19650. This is assigned automatically based of the function and form codes you have selected in step 1",
+      "You are required to assign a classification code to your file to accord to ISO 19650. Based of the function and form codes you have selected in step 1, a filtered list has been produced for you to select from",
   },
   {
     value: "series",
     tooltip:
-      "Add the series that your file relates to, to assist in searchability and collation of similar files as required. If a series is not applicable to your file, select this form the list.",
+      "Add the series that your file relates to, to assist in searchability and collation of similar files as required. If a series is not applicable to your file, select this from the list.",
   },
   {
     value: "uploadfile",
@@ -119,6 +159,7 @@ let fileData;
 let filename;
 let droppedfile;
 let uploadfile;
+let varDocNumber_Full;
 
 let titlelineID;
 let revisionCodeID;
@@ -130,6 +171,10 @@ let FileDescriptionID;
 let StateID;
 let SeriesID;
 let namingstandardID;
+
+let initialSectionHTML
+let initialStep4SectionHTML
+let initialStep5SectionHTML
 
 let namingstandard;
 let fileURN;
@@ -150,11 +195,14 @@ let selectedFunction;
 let selectedForm;
 let codeParam;
 let userAccessToken;
+let userRefreshToken;
 let userDetails;
 let userProjectDetails;
 let userProjectRoles;
 let userCompany;
 let isAdmin;
+
+let storedFolderArray
 
 document.addEventListener("DOMContentLoaded", function () {
   uploadbutton = document.getElementById("viewfile_btn");
@@ -165,6 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
   tooltip = document.getElementById("tooltip");
   tooltipQuestion = document.querySelectorAll(".fa-circle-question");
 
+
   // Add a click event listener to the button
   reloadButton.addEventListener("click", function () {
     // Reload the page
@@ -172,6 +221,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Scroll to the top of the page
     window.scrollTo(0, 0);
   });
+
+  function resetForm(){
+    document.getElementById('DocNumber').reset
+    document.getElementById('step4').innerHTML = initialStep4SectionHTML;
+    document.getElementById('step5').innerHTML = initialStep5SectionHTML;
+  }
 
   originSelectionDropdown.addEventListener("change", function () {
     // This function will be called whenever the dropdown value changes
@@ -301,7 +356,7 @@ async function setToolMode() {
 
 async function getUserDetailsFill() {
   await getUserDetails();
-  access_token = await getAccessToken("account:read");
+  access_token = await getAccessToken("account:read data:read");
   userID = userDetails.sub;
 
   await getUserProjectDetails(access_token, userID);
@@ -366,92 +421,162 @@ async function getUserDetails() {
   return response;
 }
 window.onload = function () {
-  function signin() {
-    window.open(
-      "https://developer.api.autodesk.com/authentication/v2/authorize?response_type=code&client_id=UMPIoFc8iQoJ2eKS6GsJbCGSmMb4s1PY&redirect_uri=" +
-        toolURL +
-        "&scope=data:read data:write data:create&prompt=login&state=12321321",
-      "_self"
-    );
-  }
 
-  // Function to parse URL parameters
-  function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-      results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return "";
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-  }
 
-  // Function to clear URL parameters (after reload or after successful fetch)
-  function clearUrlParameters() {
-    // Replace the current URL without reloading the page, and remove query parameters
-    const cleanUrl =
-      window.location.protocol +
-      "//" +
-      window.location.host +
-      window.location.pathname;
-    window.history.replaceState({ path: cleanUrl }, "", cleanUrl);
-  }
 
-  async function getAuthorisation(code) {
-    const bodyData = {
-      code: code,
-      grant_type: "authorization_code",
-      redirect_uri: toolURL,
-    };
-
-    let formBody = [];
-    for (let property in bodyData) {
-      let encodedKey = encodeURIComponent(property);
-      let encodedValue = encodeURIComponent(bodyData[property]);
-      formBody.push(encodedKey + "=" + encodedValue);
-    }
-    formBody = formBody.join("&");
-
-    const headers = {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization:
-        "Basic VU1QSW9GYzhpUW9KMmVLUzZHc0piQ0dTbU1iNHMxUFk6M1ZQMUdyekxMdk9Vb0V6dQ==", // Make sure this is securely handled
-    };
-
-    const requestOptions = {
-      method: "POST",
-      headers: headers,
-      body: formBody,
-    };
-
-    const apiUrl = "https://developer.api.autodesk.com/authentication/v2/token";
-    AccessToken_Local = await fetch(apiUrl, requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error === "invalid_grant") {
-          // If there's an error, reload the page
-          clearUrlParameters();
-          location.reload();
-        } else {
-          console.log(data);
-          userAccessToken = data.access_token;
-          console.log("userAccessToken", userAccessToken);
-          // Clear the URL parameters once the token is retrieved successfully
-          getUserDetailsFill();
-        }
-        return data;
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-    return AccessToken_Local;
-  }
-
+};
+function signin() {
+  window.open(
+    "https://developer.api.autodesk.com/authentication/v2/authorize?response_type=code&client_id=UMPIoFc8iQoJ2eKS6GsJbCGSmMb4s1PY&redirect_uri=" +
+      toolURL +
+      "&scope=data:read data:write data:create&prompt=login&state=12321321",
+    "_self"
+  );
+}
+async function checkLogin() {
   // Check if 'code' parameter exists in the URL
   var codeParam = getParameterByName("code");
-  if (codeParam !== null) {
-    console.log("Code parameter found: " + codeParam);
-    // Call the function to handle authorization
-    getAuthorisation(codeParam);
-  } else {
-    signin();
+  var loaclRefreshToken = localStorage.getItem('user_refresh_token')
+  console.log(loaclRefreshToken)
+  if(loaclRefreshToken == 'blank'){
+    if (codeParam !== null) {
+      console.log("Code parameter found: " + codeParam);
+      // Call the function to handle authorization
+      await getAuthorisation(codeParam);
+    } else {
+      signin();
+    }
+  }else{
+    refreshToken()
   }
-};
+
+}
+// Function to parse URL parameters
+function getParameterByName(name, url) {
+  if (!url) url = window.location.href;
+  name = name.replace(/[\[\]]/g, "\\$&");
+  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+    results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return "";
+  return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+// Function to clear URL parameters (after reload or after successful fetch)
+function clearUrlParameters() {
+  // Replace the current URL without reloading the page, and remove query parameters
+  const cleanUrl =
+    window.location.protocol +
+    "//" +
+    window.location.host +
+    window.location.pathname;
+  window.history.replaceState({ path: cleanUrl }, "", cleanUrl);
+}
+
+async function getAuthorisation(code) {
+  const bodyData = {
+    code: code,
+    grant_type: "authorization_code",
+    redirect_uri: toolURL,
+  };
+
+  let formBody = [];
+  for (let property in bodyData) {
+    let encodedKey = encodeURIComponent(property);
+    let encodedValue = encodeURIComponent(bodyData[property]);
+    formBody.push(encodedKey + "=" + encodedValue);
+  }
+  formBody = formBody.join("&");
+
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization:
+      "Basic VU1QSW9GYzhpUW9KMmVLUzZHc0piQ0dTbU1iNHMxUFk6M1ZQMUdyekxMdk9Vb0V6dQ==", // Make sure this is securely handled
+  };
+
+  const requestOptions = {
+    method: "POST",
+    headers: headers,
+    body: formBody,
+  };
+
+  const apiUrl = "https://developer.api.autodesk.com/authentication/v2/token";
+  console.log(apiUrl, requestOptions)
+  AccessToken_Local = await fetch(apiUrl, requestOptions)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error === "invalid_grant") {
+        // If there's an error, reload the page
+        clearUrlParameters();
+        location.reload();
+      } else {
+        console.log(data);
+        
+        userRefreshToken = data.refresh_token;
+        console.log("userAccessToken",userRefreshToken)
+        localStorage.setItem('user_refresh_token', userRefreshToken);
+        userAccessToken = data.access_token;
+        console.log("userAccessToken", userAccessToken);
+        // Clear the URL parameters once the token is retrieved successfully
+        getUserDetailsFill();
+      }
+      return data;
+    })
+    .catch((error) => console.error("Error fetching data:", error));
+  return AccessToken_Local;
+}
+async function refreshToken() {
+  var loaclRefreshToken = localStorage.getItem('user_refresh_token')
+  const bodyData = {
+    //code: code,
+    grant_type: "refresh_token",
+    //scope:'data:read data:write data:create',
+    refresh_token:loaclRefreshToken,
+    //client_id:'UMPIoFc8iQoJ2eKS6GsJbCGSmMb4s1PY',
+    //client_secret:'3VP1GrzLLvOUoEzu',
+    redirect_uri: toolURL,
+  };
+  const formBody = Object.keys(bodyData)
+  .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(bodyData[key])}`)
+  .join("&");
+  //const formBody = Object.keys(bodyData).map(key => `${key}=${bodyData[key]}`).join("&");
+  //formBody = formBody.join("&");
+
+  //formBody = `grant_type=refresh_token&scope=data%3Aread%20data%3Awrite%20data%3Acreate&refresh_token=${loaclRefreshToken}&redirect_uri=${toolURL}`
+
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization:
+      "Basic VU1QSW9GYzhpUW9KMmVLUzZHc0piQ0dTbU1iNHMxUFk6M1ZQMUdyekxMdk9Vb0V6dQ==", // Make sure this is securely handled
+  };
+
+  const requestOptions = {
+    method: "POST",
+    headers: headers,
+    body: formBody,
+  };
+
+  const apiUrl = "https://developer.api.autodesk.com/authentication/v2/token";
+  console.log(apiUrl, requestOptions)
+  AccessToken_Local = await fetch(apiUrl, requestOptions)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error === "invalid_grant") {
+        // If there's an error, reload the page
+        localStorage.setItem('user_refresh_token','blank');
+        clearUrlParameters();
+        location.reload();
+      } else {
+        console.log(data);
+        localStorage.setItem('user_refresh_token',data.refresh_token);
+        userRefreshToken = data.refresh_token;
+        console.log("userRefreshToken", userRefreshToken);
+        userAccessToken = data.access_token;
+        console.log("userAccessToken", userAccessToken);
+        getUserDetailsFill();
+      }
+      return data;
+    })
+    .catch((error) => console.error("Error fetching data:", error));
+  return AccessToken_Local;
+}
