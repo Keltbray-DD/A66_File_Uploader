@@ -347,8 +347,10 @@ async function setToolMode() {
 
   function activateAdminMode() {
     document.getElementById("Originator_input").disabled = false;
+    document.getElementById("Discipline_input").disabled = false;
     document.getElementById("input_folder").disabled = false;
     document.getElementById("input_Status").disabled = false;
+    document.getElementById("input_RevisionsCode").disabled = false;
 
     console.log("Admin mode activated");
   }

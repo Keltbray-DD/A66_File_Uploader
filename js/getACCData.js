@@ -359,7 +359,9 @@ async function getNamingStandard() {
             optionElement.textContent = `${option.value} - ${option.description}`;
             optionElement.description = option.description;
             dropdownContainerOriginator.appendChild(optionElement);
+
         });
+        selectedOriginator = document.querySelector("#Originator_input").value
     }else{
         const wipFolders = deliverableFolders.filter(folder => folder.folderEndName === "WIP");
         arrayOriginatorSingle = arrayOriginator.filter(originator => originator.description === userCompany)
@@ -432,7 +434,18 @@ async function getNamingStandard() {
         optionElement.value = option.value;
         optionElement.textContent = `${option.value} - ${option.description}`;
         optionElement.description = option.description;
-        dropdownContainerDiscipline.appendChild(optionElement);
+        console.log(selectedOriginator)
+        if(selectedOriginator == "KEL" && option.value == "W"){
+            optionElement.selected = true
+            dropdownContainerDiscipline.appendChild(optionElement);
+            return
+        }else if(selectedOriginator !== "KEL" && option.value == "XX"){
+            optionElement.selected = true
+            dropdownContainerDiscipline.appendChild(optionElement);
+            return
+        }
+
+        
     });
 
     //console.log(namingstandard)
