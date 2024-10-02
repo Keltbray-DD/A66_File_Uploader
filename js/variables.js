@@ -1,9 +1,9 @@
 const projectID = "76c59b97-feaf-413c-9bd0-43cf8aaa3133";
 const hubID = "b.24d2d632-e01b-4ca0-b988-385be827cb04";
 const bucketKey = "wip.dm.emea.2";
-const toolURL ="https://keltbray-dd.github.io/A66_File_Uploader/"
-//const toolURL = "http://127.0.0.1:3000/index.html";
-const REFRESH_INTERVAL_DAYS = 1;
+//const toolURL ="https://keltbray-dd.github.io/A66_File_Uploader/"
+const toolURL = "http://127.0.0.1:3000/index.html";
+const REFRESH_INTERVAL_DAYS = 14;
 
 let ProjectFiles = [];
 let projectFolders;

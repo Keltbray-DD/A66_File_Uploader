@@ -728,3 +728,12 @@ ul {
     margin-right: 20px;
     margin-top: 2px;
 }
+#logoutBtn{
+    margin-top: 5px !important;
+    margin-left: auto;
+    max-width: 5rem;
+  }
+    /* Change background on hover */
+  #logoutBtn:hover {
+      background-color: #3949ab; /* Darker blue */
+  }
