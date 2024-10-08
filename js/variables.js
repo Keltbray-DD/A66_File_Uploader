@@ -279,6 +279,11 @@ const tooltips = [
     tooltip:
       "Click the 'Upload file to ACC' button to apply the inputs and complete the task. Once uploaded, you'll see a confirmation message: 'File uploaded successfully.' You can then view the file, close the tool, or upload another. Tip: Bookmark the uploader link or save a shortcut for future use, Press Ctrl+D (Windows) or Command+D (Mac) to bookmark this page.",
   },
+  {
+    value: "deliverable",
+    tooltip:
+      "An ISO 19650 deliverable is any piece of structured project information, such as models or reports, produced and shared through a Common Data Environment (CDE) in line with BIM standards and client requirements.",
+  },
 ];
 
 var AccessToken_DataCreate;
