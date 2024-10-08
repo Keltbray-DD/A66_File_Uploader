@@ -149,6 +149,7 @@ async function getCustomDetailsData(){
     FileDescriptionID = await findObjectByName("File Description",customAttributes)
     StateID = await findObjectByName("State",customAttributes)
     SeriesID = await findObjectByName("Series",customAttributes)
+    DeliverableID = await findObjectByName("Deliverable",customAttributes)
 
     console.log(titlelineID)
     console.log(titleline2ID)
@@ -162,6 +163,7 @@ async function getCustomDetailsData(){
     console.log(FileDescriptionID)
     console.log(StateID)
     console.log(SeriesID)
+    console.log(DeliverableID)
 }
 
 async function getAccessToken(scopeInput){
@@ -608,7 +610,12 @@ async function postCustomItemDetails(AccessToken){
              // Status Description
           "id": SeriesID.id,
           "value": $("#input_Series").val()
-        }
+        },
+        {
+            // Status Description
+         "id": DeliverableID.id,
+         "value": $("#input_Deliverable").val()
+       }
       ];
 
     const headers = {
