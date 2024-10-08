@@ -1,7 +1,17 @@
 
 
 document.addEventListener('DOMContentLoaded', async function() {
-    
+// Get the full URL of the current webpage
+const fullUrl = window.location.href;
+
+// Split the URL at the "?" and take the first part
+toolURL = fullUrl.split('?')[0];
+
+// Log the URL without the query string
+
+
+
+
     await checkLogin()
     loadingScreen = document.getElementById('loadingScreen');
     statusUpdateLoading = document.getElementById('statusUpdateLoading');
@@ -382,8 +392,19 @@ async function getNamingStandard() {
 
     // Get the dropdown container
     const dropdownContainerfunction = document.getElementById("Function_input");
-
+    console.log(arrayfunction)
+    arrayfunction = arrayfunction
+    .filter(item => {
+        // Check if the item in newArray exists in attributes with `required` set to "Y"
+        const match = functionArray.find(attr => attr.value === item.value && attr.required === "Y");
+        return match !== undefined; // Return true if a match is found
+      })
+      .map(item => ({
+        value: item.value,
+        description: item.description
+      }));
     // Create and append options to the dropdown
+    console.log(arrayfunction)
     arrayfunction.forEach(option => {
         const optionElement = document.createElement("option");
         optionElement.value = option.value;

@@ -503,6 +503,50 @@ ul {
     /* Add any other styles to visually indicate the button is disabled */
 }
 
+input[type="text"]:disabled{
+    color: #888;
+}
+
+/* Style for the custom checkbox */
+input[type="checkbox"] {
+    width: calc(100% - 20px);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    border: 2px solid #ccc;
+    border-radius: 3px;
+    background-color: transparent;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+input[type="checkbox"]:checked {
+    border-color: #4CAF50;
+    background-color: #4CAF50;
+}
+
+input[type="checkbox"]:checked::after {
+    content: "";
+    display: block;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    margin: 2px 0 0 5px;
+    transform: rotate(45deg);
+}
+
+input[type="checkbox"]:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+.half{
+    width: 25%;
+}
 #loadingScreen {
     position: fixed;
     top: 0;
