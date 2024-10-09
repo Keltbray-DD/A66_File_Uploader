@@ -2,7 +2,7 @@ const projectID = "76c59b97-feaf-413c-9bd0-43cf8aaa3133";
 const hubID = "b.24d2d632-e01b-4ca0-b988-385be827cb04";
 const bucketKey = "wip.dm.emea.2";
 //const toolURL ="https://keltbray-dd.github.io/A66_File_Uploader/"
-//const toolURL = "http://127.0.0.1:3000/index.html";
+let toolURL
 const REFRESH_INTERVAL_DAYS = 14;
 
 let ProjectFiles = [];
@@ -318,6 +318,7 @@ let StatusCodeDescriptionID;
 let FileDescriptionID;
 let StateID;
 let SeriesID;
+let DeliverableID;
 let namingstandardID;
 
 let initialSectionHTML
@@ -529,6 +530,11 @@ async function setUserInfo(data) {
   profileEmail.textContent = data.email;
 }
 
+function showCustomAlert() {
+  document.getElementById('custom-alert').style.display = 'flex';
+  document.getElementById('AAFLink').href = AAFLink;
+}
+
 async function getUserProjectDetails(accessToken, userId) {
   const headers = {
     "Content-Type": "application/json",
@@ -542,6 +548,9 @@ async function getUserProjectDetails(accessToken, userId) {
   response = await fetch(apiUrl, requestOptions)
     .then((response) => response.json())
     .then((data) => {
+      if(data.status == '404'){
+        showCustomAlert()
+      }
       console.log(data);
       userProjectDetails = data;
       userProjectRoles = data.roles;

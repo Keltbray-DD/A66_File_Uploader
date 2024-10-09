@@ -407,7 +407,7 @@ input[type="submit"]:active {
     /* Slightly darker green */
 }
 
-.submitButton.disabled {
+.submitButton:disabled {
     opacity: 0.5;
     /* Example: Reduce opacity to indicate it's disabled */
     cursor: not-allowed;
@@ -503,7 +503,7 @@ ul {
     /* Add any other styles to visually indicate the button is disabled */
 }
 
-input[type="text"]:disabled{
+input[type="text"]:disabled {
     color: #888;
 }
 
@@ -544,9 +544,11 @@ input[type="checkbox"]:focus {
     outline: none;
     border-color: #4CAF50;
 }
-.half{
+
+.half {
     width: 25%;
 }
+
 #loadingScreen {
     position: fixed;
     top: 0;
@@ -559,7 +561,7 @@ input[type="checkbox"]:focus {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 999;
     /* ensure the loading screen appears on top */
 }
 
@@ -760,11 +762,13 @@ input[type="checkbox"]:focus {
     align-items: center;
     font-size: 14px;
 }
+
 .charCount {
     color: gray;
     margin: 0;
     margin-top: 2px;
 }
+
 .error {
     color: red;
     display: none;
@@ -772,12 +776,106 @@ input[type="checkbox"]:focus {
     margin-right: 20px;
     margin-top: 2px;
 }
-#logoutBtn{
+
+#logoutBtn {
     margin-top: 5px !important;
     margin-left: auto;
     max-width: 5rem;
-  }
-    /* Change background on hover */
-  #logoutBtn:hover {
-      background-color: #3949ab; /* Darker blue */
-  }
+}
+
+/* Change background on hover */
+#logoutBtn:hover {
+    background-color: #3949ab;
+    /* Darker blue */
+}
+
+/* Basic styling for the overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    /* Darker background overlay */
+    display: none;
+    /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Styling for the alert box */
+.alert-box {
+    background: linear-gradient(135deg, #ffffff, #f1f1f1);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 400px;
+    position: relative;
+    animation: fadeIn 0.4s ease;
+    /* Fade-in animation */
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    /* Smooth animation */
+    z-index: 1000;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Styling for the close button */
+.alert-box button {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+    /* Smooth hover transition */
+    width: 100%;
+}
+
+.alert-box button:hover {
+    background: #45a049;
+}
+
+/* Styling for the hyperlink */
+.alert-box a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+    /* Smooth color change on hover */
+}
+
+.alert-box a:hover {
+    color: #0056b3;
+}
+
+/* Style for the header text */
+.alert-box h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+/* Paragraph styling */
+.alert-box p {
+    color: #555;
+    font-size: 18px;
+    line-height: 1.6;
+}
