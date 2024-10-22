@@ -862,7 +862,9 @@ async function getFolderList(AccessToken, startFolderList, parentFolderPath) {
                             if(folderNameLocal.includes("APPROVED_TEMPLATES")){
                                 templateFolderID = folder.id
                             }
-
+                            if(folderNameLocal.includes("HE615323_SCHEME_3A")){
+                                defaultFolder = folder.id
+                            }
                         }
                         
                         if(fullPath.includes("0C.WIP/")){
@@ -892,7 +894,7 @@ async function getNamingStandardID(folderArray){
     wipFolderID = folderArray.filter(item => {
         return item.folderPath.includes("WIP")})
     console.log("Keltrbay WIP Folder for NS",wipFolderID[0]);
-    defaultFolder = wipFolderID[0].folderID
+    //defaultFolder = wipFolderID[0].folderID
     returnData = await getFolderDetails(accessTokenDataRead,projectID,wipFolderID[0].folderID)
     
     console.log('Naming Standard Folder Data',returnData)
