@@ -8,6 +8,7 @@ const REFRESH_INTERVAL_DAYS = 14;
 let ProjectFiles = [];
 let projectFolders;
 let deliverableFolders = [];
+let defaultFolder;
 
 const StatesList = [
   { code: "A4", description: "Accepted Design", folder: "PUBLISHED" },
